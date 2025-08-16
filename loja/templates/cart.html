@@ -1,0 +1,86 @@
+<!-- ====================== cart.html ====================== -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho - TechMart</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; }
+    header {
+      background: #1d3557; color: #fff; padding: 15px;
+      text-align: center; font-size: 1.5em;
+    }
+    .container {
+      max-width: 900px; margin: 30px auto; padding: 20px;
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%; border-collapse: collapse; margin-bottom: 20px;
+    }
+    table th, table td {
+      padding: 12px; text-align: center; border-bottom: 1px solid #ddd;
+    }
+    table th { background: #a8dadc; color: #1d3557; }
+    .actions a, .actions button {
+      padding: 8px 12px; border-radius: 5px; margin: 0 5px;
+      text-decoration: none; cursor: pointer; font-size: 0.9em;
+    }
+    .remove { background: #e63946; color: #fff; border: none; }
+    .remove:hover { background: #c1121f; }
+    .update { background: #457b9d; color: #fff; border: none; }
+    .update:hover { background: #1d3557; }
+    .checkout {
+      display: inline-block; background: #1d3557; color: #fff;
+      padding: 12px 20px; border-radius: 5px;
+      text-decoration: none; font-size: 1.1em;
+    }
+    .checkout:hover { background: #457b9d; }
+    .total {
+      text-align: right; font-size: 1.3em; font-weight: bold; color: #1d3557;
+    }
+  </style>
+</head>
+<body>
+  <header>TechMart - Carrinho</header>
+  <div class="container">
+    {% if carrinho.itens %}
+    <form method="post">
+      {% csrf_token %}
+      <table>
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Preço</th>
+            <th>Quantidade</th>
+            <th>Subtotal</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in carrinho.itens %}
+          <tr>
+            <td>{{ item.produto.nome }}</td>
+            <td>€ {{ item.produto.preco }}</td>
+            <td>
+              <input type="number" name="quantidade_{{ item.produto.id }}" value="{{ item.quantidade }}" min="1">
+            </td>
+            <td>€ {{ item.subtotal }}</td>
+            <td class="actions">
+              <button type="submit" name="update" value="{{ item.produto.id }}" class="update">Atualizar</button>
+              <button type="submit" name="remove" value="{{ item.produto.id }}" class="remove">Remover</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </form>
+    <p class="total">Total: € {{ carrinho.total }}</p>
+    <a href="{% url 'checkout' %}" class="checkout">Finalizar Compra</a>
+    {% else %}
+    <p>O seu carrinho está vazio.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

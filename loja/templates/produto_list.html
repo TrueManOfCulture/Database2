@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #1d3557;
+            margin-top: 40px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 250px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            color: #1d3557;
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .card p {
+            font-size: 1.2em;
+            color: #457b9d;
+        }
+
+        .card .actions {
+            margin-top: 20px;
+        }
+
+        .card .actions a {
+            text-decoration: none;
+            margin: 5px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            background-color: #a8dadc;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .card .actions a:hover {
+            background-color: #457b9d;
+        }
+
+        .add-product {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #1d3557;
+            color: white;
+            border-radius: 5px;
+            font-size: 1.2em;
+            text-decoration: none;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-product:hover {
+            background-color: #457b9d;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Lista de Produtos</h2>
+    
+    <div class="container">
+        <a href="{% url 'produto_create' %}" class="add-product">Adicionar Produto</a>
+
+        {% for produto in produtos %}
+        <div class="card">
+            <h3>{{ produto.nome }}</h3>
+            <p>Preço: R$ {{ produto.preco }}</p>
+            <div class="actions">
+                <a href="{% url 'produto_update' produto.id %}">Editar</a>
+                <a href="{% url 'produto_delete' produto.id %}">Deletar</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>

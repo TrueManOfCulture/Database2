@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel do Vendedor - TechMart</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f7f6;
+        margin: 0;
+      }
+      header {
+        background: #1d3557;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        font-size: 2em;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+      }
+      .content {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+        flex: 1;
+      }
+      .card {
+        flex: 1 1 250px;
+        margin: 15px;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: flex; /* adiciona flexbox */
+        flex-direction: column; /* organiza verticalmente */
+        justify-content: space-between; /* empurra o botão para baixo */
+        text-align: center;
+        transition: transform 0.3s;
+      }
+
+      .card h3 {
+        color: #1d3557;
+        margin-bottom: 20px; /* mais espaço abaixo do título */
+      }
+
+      .card p {
+        margin-bottom: 30px; /* mais espaço abaixo da descrição */
+      }
+
+      .card a {
+        margin-top: auto; /* garante que o botão fica no fundo */
+        display: inline-block;
+        padding: 12px 18px;
+        border-radius: 5px;
+        background: #1d3557;
+        color: #fff;
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+      footer { background: #1d3557; color: #fff; text-align: center; padding: 15px; }
+    </style>
+  </head>
+  <body>
+    <header>Painel do Vendedor - TechMart</header>
+    <div class="content">
+      <div class="card">
+        <h3>Produtos</h3>
+        <p>Adicionar, editar e gerir produtos.</p>
+        <a href="{% url 'produto_list' %}">Gerir Produtos</a>
+      </div>
+      <div class="card">
+        <h3>Pedidos</h3>
+        <p>Ver pedidos feitos pelos clientes e atualizar status.</p>
+        <a href="#">Gerir Pedidos</a>
+      </div>
+      <div class="card">
+        <h3>Estoque</h3>
+        <p>Monitorizar e atualizar o stock disponível.</p>
+        <a href="#">Gerir Estoque</a>
+      </div>
+      <div class="card">
+        <h3>Promoções</h3>
+        <p>Criar e gerir promoções de produtos.</p>
+        <a href="#">Gerir Promoções</a>
+      </div>
+    </div>
+    <footer>
+      <p>&copy; 2025 TechMart</p>
+    </footer>
+  </body>
+</html>

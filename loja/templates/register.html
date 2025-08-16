@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registo - TechMart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; margin: 0;
+    }
+    .container {
+      background: #fff; padding: 30px; border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px;
+    }
+    h2 { color: #1d3557; margin-bottom: 20px; text-align: center; }
+    input, select {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border: 1px solid #ddd; border-radius: 5px;
+    }
+    .btn {
+      width: 100%; padding: 12px; border: none;
+      background: #1d3557; color: #fff; border-radius: 5px;
+      cursor: pointer; font-size: 1.1em;
+    }
+    .btn:hover { background: #457b9d; }
+    .link { margin-top: 15px; text-align: center; }
+    .link a { color: #1d3557; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Crie a sua conta - TechMart</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <input type="text" name="username" placeholder="Nome de usuário" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password1" placeholder="Senha" required>
+      <input type="password" name="password2" placeholder="Confirmar senha" required>
+      <select name="tipo_usuario" required>
+        <option value="">Selecione o tipo de conta</option>
+        <option value="cliente">Cliente</option>
+        <option value="fornecedor">Fornecedor</option>
+      </select>
+      <button type="submit" class="btn">Registar</button>
+    </form>
+    <div class="link">
+      <p>Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+    </div>
+  </div>
+</body>
+</html>
