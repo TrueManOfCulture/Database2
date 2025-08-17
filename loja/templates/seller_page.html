@@ -20,12 +20,13 @@
       header {
         background: #1d3557;
         color: #fff;
-        padding: 20px;
+        padding: 15px 20px;
         text-align: center;
-        font-size: 2em;
+        font-size: 1.8em; /* Reduzido de 2em para 1.8em */
         font-weight: bold;
         position: sticky;
         top: 0;
+        flex-shrink: 0; /* Impede que o header encolha */
       }
       .content {
         display: flex;
@@ -69,7 +70,19 @@
         text-decoration: none;
         transition: background 0.3s;
       }
-      footer { background: #1d3557; color: #fff; text-align: center; padding: 15px; }
+      footer {
+        background: #1d3557;
+        color: #fff;
+        text-align: center;
+        padding: 12px 15px; /* Reduzido de 15px para 12px */
+        margin-top: auto; /* Empurra o footer para baixo */
+        flex-shrink: 0; /* Impede que o footer encolha */
+      }
+
+      footer p {
+        margin: 0; /* Remove margem padrão do parágrafo */
+        font-size: 0.9em; /* Fonte ligeiramente menor */
+      }
     </style>
   </head>
   <body>
