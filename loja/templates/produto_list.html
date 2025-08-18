@@ -92,18 +92,18 @@
 </head>
 <body>
 
-    <h2>Lista de Produtos</h2>
+    <h2>List of Products</h2>
     
     <div class="container">
-        <a href="{% url 'produto_create' %}" class="add-product">Adicionar Produto</a>
+        <a href="{% url 'produto_create' %}" class="add-product">Add Product</a>
 
         {% for produto in produtos %}
         <div class="card">
             <h3>{{ produto.nome }}</h3>
-            <p>Preço: R$ {{ produto.preco }}</p>
+            <p>Price: R$ {{ produto.preco }}</p>
             <div class="actions">
-                <a href="{% url 'produto_update' produto.id %}">Editar</a>
-                <a href="{% url 'produto_delete' produto.id %}">Deletar</a>
+                <a href="{% url 'produto_update' produto.id %}">Edit</a>
+                <a href="{% url 'produto_delete' produto.id %}">Delete</a>
             </div>
         </div>
         {% endfor %}

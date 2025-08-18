@@ -1,6 +1,6 @@
-<h2>Deseja deletar {{ produto.nome }}?</h2>
+<h2>Do you want to delete {{ produto.nome }}?</h2>
 <form method="post">
     {% csrf_token %}
-    <button type="submit">Sim, deletar</button>
+    <button type="submit">Yes, delete</button>
 </form>
-<a href="{% url 'produto_list' %}">Cancelar</a>
+<a href="{% url 'produto_list' %}">Cancel</a>

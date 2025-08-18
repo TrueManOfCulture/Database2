@@ -32,17 +32,17 @@
   </style>
 </head>
 <body>
-  <header>TechMart - Produtos</header>
+  <header>TechMart - Products</header>
   <div class="products">
     {% for produto in produtos %}
     <div class="card">
       <h3>{{ produto.nome }}</h3>
       <p>{{ produto.descricao|truncatewords:15 }}</p>
       <p class="price">€ {{ produto.preco }}</p>
-      <a href="{% url 'adicionar_carrinho' produto.id %}" class="btn">Adicionar ao carrinho</a>
+      <a href="{% url 'adicionar_carrinho' produto.id %}" class="btn">Add to cart</a>
     </div>
     {% empty %}
-    <p>Nenhum produto disponível.</p>
+    <p>No product available.</p>
     {% endfor %}
   </div>
 </body>

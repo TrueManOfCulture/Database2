@@ -32,22 +32,21 @@
 </head>
 <body>
   <div class="container">
-    <h2>Crie a sua conta - TechMart</h2>
+    <h2>Create your account - TechMart</h2>
     <form method="POST">
       {% csrf_token %}
-      <input type="text" name="username" placeholder="Nome de usuário" required>
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password1" placeholder="Password" required>
       <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password1" placeholder="Senha" required>
-      <input type="password" name="password2" placeholder="Confirmar senha" required>
       <select name="tipo_usuario" required>
-        <option value="">Selecione o tipo de conta</option>
-        <option value="cliente">Cliente</option>
-        <option value="fornecedor">Fornecedor</option>
+        <option value="">Select the type of account</option>
+        <option value="cliente">Client</option>
+        <option value="fornecedor">Supplier</option>
       </select>
-      <button type="submit" class="btn">Registar</button>
+      <button type="submit" class="btn">Register</button>
     </form>
     <div class="link">
-      <p>Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+      <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
     </div>
   </div>
 </body>
