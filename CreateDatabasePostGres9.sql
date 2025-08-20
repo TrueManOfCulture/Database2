@@ -1,0 +1,79 @@
+/* =============================
+   TechMart - Base de Dados (Postgres)
+   ============================= */
+
+/* Drop antigo */
+DROP TABLE IF EXISTS TEM2 CASCADE;
+DROP TABLE IF EXISTS STOCK CASCADE;
+DROP TABLE IF EXISTS PEDIDO CASCADE;
+DROP TABLE IF EXISTS CLIENTE CASCADE;
+DROP TABLE IF EXISTS FORNECEDOR CASCADE;
+DROP TABLE IF EXISTS USUARIO CASCADE;
+
+/* =============================
+   USUARIO (base para cliente e fornecedor)
+   ============================= */
+CREATE TABLE USUARIO (
+    ID_USUARIO SERIAL PRIMARY KEY,
+    NOME VARCHAR(255) NOT NULL,
+    EMAIL VARCHAR(255) UNIQUE NOT NULL,
+    PASSWORD VARCHAR(255) NOT NULL
+);
+
+/* =============================
+   CLIENTE (herda de USUARIO via FK 1:1)
+   ============================= */
+CREATE TABLE CLIENTE (
+    ID_CLIENTE INT PRIMARY KEY,
+    GENERO VARCHAR(20),
+    DATA_NASCIMENTO DATE,
+    MORADA VARCHAR(255),
+    FOREIGN KEY (ID_CLIENTE) REFERENCES USUARIO(ID_USUARIO) ON DELETE CASCADE
+);
+
+/* =============================
+   FORNECEDOR (herda de USUARIO via FK 1:1)
+   ============================= */
+CREATE TABLE FORNECEDOR (
+    ID_FORNECEDOR INT PRIMARY KEY,
+    NIF VARCHAR(20),
+    FOREIGN KEY (ID_FORNECEDOR) REFERENCES USUARIO(ID_USUARIO) ON DELETE CASCADE
+);
+
+/* =============================
+   PEDIDO
+   ============================= */
+CREATE TABLE PEDIDO (
+    ID_PEDIDO SERIAL PRIMARY KEY,
+    ID_CLIENTE INT NOT NULL,
+    DATA_EFETUADO DATE NOT NULL DEFAULT CURRENT_DATE,
+    STATUS VARCHAR(50) NOT NULL DEFAULT 'Pendente',
+    DATA_CONCLUIDO DATE,
+    FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE) ON DELETE CASCADE
+);
+
+/* =============================
+   STOCK
+   (referencia fornecedor e produto lógico do MongoDB)
+   ============================= */
+CREATE TABLE STOCK (
+    ID_STOCK SERIAL PRIMARY KEY,
+    ID_FORNECEDOR INT NOT NULL,
+    ID_PRODUTO INT NOT NULL, -- ref a Produto no Mongo
+    QUANTIDADE INT NOT NULL CHECK (QUANTIDADE >= 0),
+    ULTIMO_UPDATE DATE NOT NULL DEFAULT CURRENT_DATE,
+    FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR) ON DELETE CASCADE
+);
+
+/* =============================
+   TEM2 (pedido-produto)
+   liga pedido em Postgres a produto no MongoDB
+   ============================= */
+CREATE TABLE TEM2 (
+    ID_PEDIDO INT NOT NULL,
+    ID_PRODUTO INT NOT NULL, -- ref a Produto no Mongo
+    QUANTIDADE INT NOT NULL CHECK (QUANTIDADE > 0),
+    PRIMARY KEY (ID_PEDIDO, ID_PRODUTO),
+    FOREIGN KEY (ID_PEDIDO) REFERENCES PEDIDO(ID_PEDIDO) ON DELETE CASCADE
+);
+

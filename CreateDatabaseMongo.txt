@@ -1,0 +1,52 @@
+/* Produtos */
+db.createCollection("produtos", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["nome", "preco", "categoria", "marca", "condicao"],
+      properties: {
+        nome: { bsonType: "string" },
+        descricao: { bsonType: "string" },
+        preco: { bsonType: "double" },
+        categoria: { bsonType: "string" },
+        marca: { bsonType: "string" },
+        condicao: { bsonType: "string" },
+        detalhes_condicao: { bsonType: "string" }
+      }
+    }
+  }
+});
+
+/* Promoções */
+db.createCollection("promocoes", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["tipo", "valor", "data_inicio", "data_fim", "produto_id"],
+      properties: {
+        tipo: { bsonType: "string" },
+        valor: { bsonType: "double" },
+        data_inicio: { bsonType: "date" },
+        data_fim: { bsonType: "date" },
+        produto_id: { bsonType: "int" }
+      }
+    }
+  }
+});
+
+/* Avaliações */
+db.createCollection("avaliacoes", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["usuario_id", "produto_id", "nota", "data"],
+      properties: {
+        usuario_id: { bsonType: "int" },
+        produto_id: { bsonType: "int" },
+        comentario: { bsonType: "string" },
+        nota: { bsonType: "double" },
+        data: { bsonType: "date" }
+      }
+    }
+  }
+});
