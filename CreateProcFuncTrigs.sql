@@ -1,5 +1,5 @@
 /* ========================================
-   TRIGGER 1: Atualizar DATA_CONCLUIDO quando pedido for concluído
+   Trigger: Atualizar DATA_CONCLUIDO quando pedido for concluído
    ======================================== */
 CREATE OR REPLACE FUNCTION set_data_concluido()
 RETURNS TRIGGER AS $$
@@ -19,8 +19,8 @@ EXECUTE FUNCTION set_data_concluido();
 
 
 /* ========================================
-   TRIGGER 2: Impedir criação de pedido se cliente não existir
-   (já é garantido pelo FK, mas deixamos para mensagens customizadas)
+   Trigger: Validar cliente ao criar pedido
+   (extra, apesar do FK já garantir integridade)
    ======================================== */
 CREATE OR REPLACE FUNCTION check_cliente_exist()
 RETURNS TRIGGER AS $$
@@ -40,7 +40,7 @@ EXECUTE FUNCTION check_cliente_exist();
 
 
 /* ========================================
-   TRIGGER 3: Verificar stock antes de adicionar produto ao pedido (TEM2)
+   Trigger: Validar stock antes de adicionar produto ao pedido
    ======================================== */
 CREATE OR REPLACE FUNCTION check_stock()
 RETURNS TRIGGER AS $$
@@ -72,7 +72,7 @@ EXECUTE FUNCTION check_stock();
 
 
 /* ========================================
-   PROCEDURE: Processar pedido
+   Procedure: Processar pedido
    - Atualiza stock
    - Marca pedido como concluído
    ======================================== */
@@ -106,7 +106,7 @@ $$;
 
 
 /* ========================================
-   FUNCTION: Quantos pedidos fez um cliente
+   Função: Quantos pedidos fez um cliente
    ======================================== */
 CREATE OR REPLACE FUNCTION pedidos_por_cliente(p_cliente_id INT)
 RETURNS INT AS $$
@@ -119,4 +119,3 @@ BEGIN
     RETURN total;
 END;
 $$ LANGUAGE plpgsql;
-
