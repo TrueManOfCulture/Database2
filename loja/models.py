@@ -2,13 +2,14 @@ from django.db import models
 
 class Usuario(models.Model):
     ID_USUARIO = models.AutoField(primary_key=True)  # SERIAL in PostgreSQL
-    NOME = models.CharField(max_length=255)  # Matching PostgreSQL schema
+    NOME = models.CharField(max_length=255, default="Unkno")  # Matching PostgreSQL schema
     EMAIL = models.EmailField(max_length=255, unique=True)  # UNIQUE constraint
     PASSWORD = models.CharField(max_length=255)
     TIPO_USUARIO = models.CharField(max_length=20)  # VARCHAR(20) in schema
 
     class Meta:
-        db_table = 'usuario'  # Lowercase table name in PostgreSQL
+        db_table = 'usuario'
+        managed = False
 
     def __str__(self):
         return self.NOME
@@ -26,6 +27,7 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'cliente'
+        managed = False
 
     def __str__(self):
         return f"Cliente: {self.ID_CLIENTE.NOME}"
@@ -41,6 +43,7 @@ class Fornecedor(models.Model):
 
     class Meta:
         db_table = 'fornecedor'
+        managed = False
 
     def __str__(self):
         return f"Fornecedor: {self.ID_FORNECEDOR.NOME}"
@@ -58,6 +61,7 @@ class Pedido(models.Model):
 
     class Meta:
         db_table = 'pedido'
+        managed = False
 
     def __str__(self):
         return f"Pedido {self.ID_PEDIDO} - {self.STATUS}"
@@ -75,6 +79,7 @@ class Stock(models.Model):
 
     class Meta:
         db_table = 'stock'
+        managed = False
 
     def __str__(self):
         return f"Stock {self.ID_STOCK} - Produto {self.ID_PRODUTO} ({self.QUANTIDADE})"
@@ -91,8 +96,8 @@ class Tem2(models.Model):
 
     class Meta:
         db_table = 'tem2'
-        # Composite primary key
         unique_together = ('ID_PEDIDO', 'ID_PRODUTO')
+        managed = False
 
     def __str__(self):
         return f"Pedido {self.ID_PEDIDO.ID_PEDIDO} - Produto {self.ID_PRODUTO} ({self.QUANTIDADE})"

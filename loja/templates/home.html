@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechMart - Home Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #1d3557;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar h1 { margin: 0; font-size: 1.5em; }
+    .navbar input, .navbar select, .navbar button {
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      margin-left: 5px;
+    }
+    .navbar button { cursor: pointer; background-color: #457b9d; color: white; }
+
+    /* Layout */
+    .layout {
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background: #f1f1f1;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+    }
+    .sidebar h3 { margin-top: 0; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar ul li { margin: 8px 0; }
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #1d3557;
+      font-weight: bold;
+    }
+    .sidebar ul li a:hover { text-decoration: underline; }
+
+    /* Main content */
+    .products {
+      flex-grow: 1;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .card h3 { margin: 10px 0; color: #1d3557; }
+    .card p { margin: 5px 0; color: #457b9d; }
+    .buy-btn {
+      display: inline-block;
+      padding: 10px 15px;
+      margin-top: 10px;
+      border-radius: 5px;
+      background-color: #1d3557;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .buy-btn:hover { background-color: #457b9d; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar with search/filter -->
+  <div class="navbar">
+    <h1>TechMart</h1>
+    <form method="get">
+      <input type="text" name="search" placeholder="Pesquisar produtos..." value="{{ request.GET.search }}">
+      <select name="avaliacao">
+        <option value="">Filtrar por Avaliação</option>
+        <option value="4" {% if request.GET.avaliacao == "4" %}selected{% endif %}>4★ e acima</option>
+        <option value="3" {% if request.GET.avaliacao == "3" %}selected{% endif %}>3★ e acima</option>
+      </select>
+      <button type="submit">Filtrar</button>
+    </form>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar Categories -->
+    <div class="sidebar">
+      <h3>Categorias</h3>
+      <ul>
+        {% for cat in categorias %}
+          <li>
+            <a href="?categoria={{ cat }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.avaliacao %}&avaliacao={{ request.GET.avaliacao }}{% endif %}">
+              {{ cat }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Products -->
+    <div class="products">
+      {% if produtos %}
+        {% for produto in produtos %}
+          <div class="card">
+            <h3>{{ produto.nome }}</h3>
+            <p>Preço: R$ {{ produto.preco }}</p>
+            <p>Categoria: {{ produto.categoria }}</p>
+            <p>⭐ {{ produto.media_avaliacao|default:"N/A" }}</p>
+            <a href="{% url 'produto_buy' produto.id %}" class="buy-btn">Comprar</a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>Nenhum produto encontrado.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</body>
+</html>

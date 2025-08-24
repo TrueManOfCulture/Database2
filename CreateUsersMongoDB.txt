@@ -1,0 +1,24 @@
+use BD2_TP;
+
+db.createUser({
+  user: "AdministradorSite",
+  pwd: "pass",
+  roles: [ { role: "dbOwner", db: "BD2_TP" } ]
+});
+
+db.createUser({
+  user: "appManager",
+  pwd: "manager_pass",
+  roles: [
+    { role: "readWrite", db: "BD2_TP" }
+  ]
+});
+
+db.createUser({
+  user: "regularUser",
+  pwd: "user_pass",
+  roles: [
+    { role: "read", db: "BD2_TP" }, 
+    { role: "readWrite", db: "BD2_TP", collection: "avaliacoes" }
+  ]
+});

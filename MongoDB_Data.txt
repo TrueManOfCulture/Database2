@@ -1,0 +1,252 @@
+/* =============================
+   BD2_TP - Fake Data Population
+   Execute in MongoDB shell (mongosh)
+   ============================= */
+
+use BD2_TP
+
+/* =============================
+   POPULATE PRODUTO COLLECTION
+   ============================= */
+
+db.produto.insertMany([
+
+    descricao: "Laptop empresarial com Intel Core i5-1235U, 8GB RAM e SSD de 256GB",
+    preco: 1299.99,
+    categoria: "Laptops",
+    marca: "Lenovo",
+    condicao: "Recondicionado",
+    detalhes_condicao: "Recondicionado profissionalmente, garantia de 1 ano"
+  },
+
+  // Headphones
+  {
+    _id: 7,
+    nome: "Sony WH-1000XM5",
+    descricao: "Headphones wireless com cancelamento de ruído ativo e 30h de bateria",
+    preco: 399.99,
+    categoria: "Audio",
+    marca: "Sony",
+    condicao: "Novo",
+    detalhes_condicao: "Novo com todos os acessórios incluídos"
+  },
+  {
+    _id: 8,
+    nome: "AirPods Pro 2ª Geração",
+    descricao: "Earbuds Apple com chip H2, cancelamento ativo de ruído e case MagSafe",
+    preco: 249.99,
+    categoria: "Audio",
+    marca: "Apple",
+    condicao: "Novo",
+    detalhes_condicao: "Selado na embalagem original"
+  },
+  {
+    _id: 9,
+    nome: "Bose QuietComfort 45",
+    descricao: "Headphones over-ear com cancelamento de ruído premiado e 24h de bateria",
+    preco: 329.99,
+    categoria: "Audio",
+    marca: "Bose",
+    condicao: "Usado",
+    detalhes_condicao: "Usado pouquíssimo, como novo"
+  },
+
+  // Gaming
+  {
+    _id: 10,
+    nome: "PlayStation 5",
+    descricao: "Console de nova geração com SSD ultra-rápido e ray tracing em tempo real",
+    preco: 499.99,
+    categoria: "Gaming",
+    marca: "Sony",
+    condicao: "Novo",
+    detalhes_condicao: "Novo lacrado com 2 anos de garantia"
+  },
+  {
+    _id: 11,
+    nome: "Xbox Series X",
+    descricao: "Console 4K com 12 teraflops, SSD de 1TB e retrocompatibilidade",
+    preco: 499.99,
+    categoria: "Gaming",
+    marca: "Microsoft",
+    condicao: "Recondicionado",
+    detalhes_condicao: "Recondicionado pela Microsoft, garantia oficial"
+  },
+  {
+    _id: 12,
+    nome: "Nintendo Switch OLED",
+    descricao: "Console híbrido com tela OLED de 7 polegadas e 64GB de armazenamento",
+    preco: 349.99,
+    categoria: "Gaming",
+    marca: "Nintendo",
+    condicao: "Usado",
+    detalhes_condicao: "Usado em excelente estado, sem riscos na tela"
+  },
+
+  // Tablets
+  {
+    _id: 13,
+    nome: "iPad Pro 12.9\" M2",
+    descricao: "Tablet profissional com chip M2, tela Liquid Retina XDR e suporte ao Apple Pencil",
+    preco: 1099.99,
+    categoria: "Tablets",
+    marca: "Apple",
+    condicao: "Novo"
+  },
+  {
+    _id: 14,
+    nome: "Samsung Galaxy Tab S8+",
+    descricao: "Tablet Android premium com S Pen incluída e tela Super AMOLED de 12.4\"",
+    preco: 899.99,
+    categoria: "Tablets",
+    marca: "Samsung",
+    condicao: "Recondicionado",
+    detalhes_condicao: "Grade A, indistinguível do novo"
+  },
+  {
+    _id: 15,
+    nome: "Microsoft Surface Pro 9",
+    descricao: "2-em-1 com Intel Core i5-1235U, 8GB RAM e Type Cover incluído",
+    preco: 1299.99,
+    categoria: "Tablets",
+    marca: "Microsoft",
+    condicao: "Novo",
+    detalhes_condicao: "Novo com Type Cover e Surface Pen incluídos"
+  }
+]);
+
+/* =============================
+   POPULATE PROMOCAO COLLECTION
+   ============================= */
+
+db.promocao.insertMany([
+  {
+    tipo: "desconto_percentual",
+    valor: 15.00,
+    data_inicio: new Date("2024-08-01"),
+    data_fim: new Date("2024-08-31"),
+    produto_id: 1
+  },
+  {
+    tipo: "desconto_fixo", 
+    valor: 200.00,
+    data_inicio: new Date("2024-08-15"),
+    data_fim: new Date("2024-09-15"),
+    produto_id: 4
+  },
+  {
+    tipo: "desconto_percentual",
+    valor: 25.00,
+    data_inicio: new Date("2024-08-20"),
+    data_fim: new Date("2024-09-05"),
+    produto_id: 7
+  },
+  {
+    tipo: "desconto_percentual",
+    valor: 20.00,
+    data_inicio: new Date("2024-08-10"),
+    data_fim: new Date("2024-08-30"),
+    produto_id: 10
+  },
+  {
+    tipo: "desconto_fixo",
+    valor: 50.00,
+    data_inicio: new Date("2024-08-18"),
+    data_fim: new Date("2024-09-01"),
+    produto_id: 8
+  },
+  {
+    tipo: "desconto_percentual",
+    valor: 30.00,
+    data_inicio: new Date("2024-09-01"),
+    data_fim: new Date("2024-09-30"),
+    produto_id: 2
+  },
+  {
+    tipo: "desconto_percentual",
+    valor: 10.00,
+    data_inicio: new Date("2024-09-15"),
+    data_fim: new Date("2024-10-15"),
+    produto_id: 13
+  },
+  {
+    tipo: "desconto_fixo",
+    valor: 150.00,
+    data_inicio: new Date("2024-10-01"),
+    data_fim: new Date("2024-10-31"),
+    produto_id: 5
+  },
+  {
+    tipo: "desconto_percentual",
+    valor: 35.00,
+    data_inicio: new Date("2024-07-01"),
+    data_fim: new Date("2024-07-31"),
+    produto_id: 11
+  },
+  {
+    tipo: "desconto_fixo",
+    valor: 75.00,
+    data_inicio: new Date("2024-06-15"),
+    data_fim: new Date("2024-07-15"),
+    produto_id: 9
+  },
+  {
+    tipo: "desconto_percentual",
+    valor: 12.00,
+    data_inicio: new Date("2024-07-20"),
+    data_fim: new Date("2024-08-10"),
+    produto_id: 12
+  },
+  {
+    tipo: "desconto_fixo",
+    valor: 100.00,
+    data_inicio: new Date("2024-05-01"),
+    data_fim: new Date("2024-05-31"),
+    produto_id: 6
+  }
+]);
+
+/* =============================
+   VERIFICATION QUERIES
+   ============================= */
+
+// Check inserted data
+print("=== PRODUTOS INSERIDOS ===");
+db.produto.countDocuments();
+
+print("=== PROMOÇÕES INSERIDAS ===");
+db.promocao.countDocuments();
+
+// Sample queries
+print("=== PRODUTOS POR CATEGORIA ===");
+db.produto.aggregate([
+  { $group: { _id: "$categoria", count: { $sum: 1 }, avg_price: { $avg: "$preco" } } }
+]);
+
+print("=== PROMOÇÕES ATIVAS ===");
+db.promocao.find({
+  data_inicio: { $lte: new Date() },
+  data_fim: { $gte: new Date() }
+});
+
+print("=== PRODUTOS EM PROMOÇÃO (com desconto ativo) ===");
+db.produto.aggregate([
+  {
+    $lookup: {
+      from: "promocao",
+      localField: "_id",
+      foreignField: "produto_id",
+      as: "promocoes_ativas",
+      pipeline: [
+        {
+          $match: {
+            data_inicio: { $lte: new Date() },
+            data_fim: { $gte: new Date() }
+          }
+        }
+      ]
+    }
+  },
+  { $match: { "promocoes_ativas.0": { $exists: true } } },
+  { $project: { nome: 1, preco: 1, marca: 1, promocoes_ativas: 1 } }
+]);

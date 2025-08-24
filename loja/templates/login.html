@@ -19,11 +19,13 @@
     input {
       width: 100%; padding: 12px; margin: 10px 0;
       border: 1px solid #ddd; border-radius: 5px; font-size: 1em;
+      box-sizing: border-box; /* This is the key fix */
     }
     .btn {
       width: 100%; padding: 12px; border: none;
       background: #1d3557; color: #fff; border-radius: 5px;
       cursor: pointer; font-size: 1.1em;
+      box-sizing: border-box; /* Also fix the button */
     }
     .btn:hover { background: #457b9d; }
     .link { margin-top: 15px; font-size: 0.9em; }
@@ -39,7 +41,7 @@
     {% endif %}
     <form method="POST">
       {% csrf_token %}
-      <input type="text" name="username" placeholder="Username" required>
+      <input type="email" name="email" placeholder="Email" required>
       <input type="password" name="password" placeholder="Password" required>
       <button type="submit" class="btn">Login</button>
     </form>

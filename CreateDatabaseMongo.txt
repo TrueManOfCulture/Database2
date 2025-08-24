@@ -1,5 +1,5 @@
-/* Produtos */
-db.createCollection("produtos", {
+use BD2_TP
+db.createCollection("produto", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
@@ -17,15 +17,14 @@ db.createCollection("produtos", {
   }
 });
 
-/* Promoções */
-db.createCollection("promocoes", {
+db.createCollection("promocao", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
       required: ["tipo", "valor", "data_inicio", "data_fim", "produto_id"],
       properties: {
         tipo: { bsonType: "string" },
-        valor: { bsonType: "double" },
+        valor: { bsonType: ["double", "int"] },  // Allow both types
         data_inicio: { bsonType: "date" },
         data_fim: { bsonType: "date" },
         produto_id: { bsonType: "int" }
@@ -34,8 +33,7 @@ db.createCollection("promocoes", {
   }
 });
 
-/* Avaliações */
-db.createCollection("avaliacoes", {
+db.createCollection("avaliacao", {
   validator: {
     $jsonSchema: {
       bsonType: "object",

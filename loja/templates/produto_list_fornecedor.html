@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Produtos</title>
+    <title>Lista de Produtos - TechMart</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -100,12 +100,14 @@
         {% for produto in produtos %}
         <div class="card">
             <h3>{{ produto.nome }}</h3>
-            <p>Price: R$ {{ produto.preco }}</p>
+            <p>Price: € {{ produto.preco }}</p>
             <div class="actions">
                 <a href="{% url 'produto_update' produto.id %}">Edit</a>
                 <a href="{% url 'produto_delete' produto.id %}">Delete</a>
             </div>
         </div>
+        {% empty %}
+        <p>No products found.</p>
         {% endfor %}
     </div>
 

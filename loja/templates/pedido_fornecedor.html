@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos do Fornecedor - TechMart</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin:0; padding:0; }
+    h2 { text-align: center; color: #1d3557; margin-top: 20px; }
+    .order-container { width: 90%; margin: 20px auto; }
+    .order-card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    .order-card h3 { margin: 0 0 10px 0; color: #1d3557; }
+    .order-info { margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+    th { background: #a8dadc; color: #1d3557; }
+  </style>
+</head>
+<body>
+  <h2>Pedidos do Fornecedor</h2>
+  <div class="order-container">
+    {% for pedido in pedidos %}
+      <div class="order-card">
+        <div class="order-info">
+          <strong>Pedido ID:</strong> {{ pedido.id_pedido }} |
+          <strong>Cliente ID:</strong> {{ pedido.id_cliente }} |
+          <strong>Status:</strong> {{ pedido.status }} |
+          <strong>Data:</strong> {{ pedido.data_efetuado }}
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto ID</th>
+              <th>Quantidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for produto in pedido.produtos %}
+            <tr>
+              <td>{{ produto.id_produto }}</td>
+              <td>{{ produto.quantidade }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% empty %}
+      <p style="text-align:center;">Nenhum pedido encontrado.</p>
+    {% endfor %}
+  </div>
+</body>
+</html>

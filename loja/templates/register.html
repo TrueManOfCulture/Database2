@@ -28,6 +28,7 @@
     .btn:hover { background: #457b9d; }
     .link { margin-top: 15px; text-align: center; }
     .link a { color: #1d3557; text-decoration: none; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -38,16 +39,48 @@
       <input type="text" name="username" placeholder="Username" required>
       <input type="password" name="password1" placeholder="Password" required>
       <input type="email" name="email" placeholder="Email" required>
-      <select name="tipo_usuario" required>
+
+      <select id="tipo_usuario" name="tipo_usuario" required onchange="toggleFields()">
         <option value="">Select the type of account</option>
         <option value="cliente">Client</option>
         <option value="fornecedor">Supplier</option>
       </select>
+
+      <!-- Extra fields for Client -->
+      <div id="cliente_fields" class="hidden">
+        <select name="genero">
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+        <input type="date" name="data_nascimento" placeholder="Birthdate">
+        <input type="text" name="morada" placeholder="Address">
+      </div>
+
+      <!-- Extra fields for Supplier -->
+      <div id="fornecedor_fields" class="hidden">
+        <input type="text" name="nif" placeholder="NIF">
+      </div>
+
       <button type="submit" class="btn">Register</button>
     </form>
     <div class="link">
       <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
     </div>
   </div>
+
+  <script>
+    function toggleFields() {
+      const tipo = document.getElementById("tipo_usuario").value;
+      document.getElementById("cliente_fields").classList.add("hidden");
+      document.getElementById("fornecedor_fields").classList.add("hidden");
+
+      if (tipo === "cliente") {
+        document.getElementById("cliente_fields").classList.remove("hidden");
+      } else if (tipo === "fornecedor") {
+        document.getElementById("fornecedor_fields").classList.remove("hidden");
+      }
+    }
+  </script>
 </body>
 </html>
