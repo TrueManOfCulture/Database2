@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Gerir Promoções - TechMart{% endblock %}
+{% block header_title %}Gestão de Promoções{% endblock %}
+
+{% block extra_css %}
+  .supplier-content {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+  }
+  .page-title {
+    text-align: center;
+    color: #1d3557;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+  }
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .btn-add-promotion {
+    background: #27ae60;
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  .btn-add-promotion:hover {
+    background: #219a52;
+  }
+  .promotion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+  }
+  .promotion-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .promotion-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #1d3557, #457b9d);
+  }
+  .promotion-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  }
+  .promotion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+  }
+  .promotion-title {
+    color: #1d3557;
+    margin: 0;
+    font-size: 1.3em;
+  }
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+  }
+  .status-active {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+  .status-upcoming {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+  .status-expired {
+    background: #ffebee;
+    color: #c62828;
+  }
+  .promotion-details {
+    margin: 15px 0;
+  }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .detail-label {
+    font-weight: bold;
+    color: #1d3557;
+  }
+  .discount-value {
+    font-weight: bold;
+    color: #27ae60;
+    font-size: 1.1em;
+  }
+  .date-range {
+    color: #666;
+    font-size: 0.9em;
+  }
+  .promotion-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-small {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  }
+  .btn-edit { 
+    background: #3498db; 
+    color: white; 
+  }
+  .btn-delete { 
+    background: #e74c3c; 
+    color: white; 
+  }
+  .btn-edit:hover { 
+    background: #2980b9; 
+  }
+  .btn-delete:hover { 
+    background: #c0392b; 
+  }
+  .empty-state {
+    text-align: center;
+    margin-top: 50px;
+    padding: 40px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    grid-column: 1 / -1;
+  }
+  .empty-state h3 {
+    color: #1d3557;
+    margin-bottom: 15px;
+  }
+  .empty-state p {
+    color: #666;
+    margin-bottom: 25px;
+  }
+  
+  /* Form styles */
+  .promotion-form {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-top: 20px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .page-header {
+      flex-direction: column;
+      text-align: center;
+    }
+    .page-title {
+      font-size: 1.8em;
+    }
+    .promotion-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endblock %}
+
+{% block content %}
+<div class="supplier-content">
+  <div class="page-header">
+    <h1 class="page-title">Gestão de Promoções</h1>
+    <a href="{% url 'promocao_create' %}" class="btn-add-promotion">+ Criar Nova Promoção</a>
+  </div>
+  
+  {% if promocoes %}
+    <div class="promotion-grid">
+      {% for promocao in promocoes %}
+      <div class="promotion-card">
+        <div class="promotion-header">
+          <h3 class="promotion-title">{{ promocao.produto_nome }}</h3>
+          <span class="status-badge 
+            {% if promocao.ativa %}status-active{% elif promocao.futura %}status-upcoming{% else %}status-expired{% endif %}">
+            {% if promocao.ativa %}Ativa{% elif promocao.futura %}Futura{% else %}Expirada{% endif %}
+          </span>
+        </div>
+        
+        <div class="promotion-details">
+          <div class="detail-row">
+            <span class="detail-label">Tipo de Desconto:</span>
+            <span>
+              {% if promocao.tipo == 'desconto_percentual' %}
+                Desconto Percentual
+              {% else %}
+                Desconto Fixo
+              {% endif %}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Valor do Desconto:</span>
+            <span class="discount-value">
+              {% if promocao.tipo == 'desconto_percentual' %}
+                {{ promocao.valor }}%
+              {% else %}
+                €{{ promocao.valor }}
+              {% endif %}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Período:</span>
+            <span class="date-range">
+              De {{ promocao.data_inicio|date:"d/m/Y" }} a {{ promocao.data_fim|date:"d/m/Y" }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="promotion-actions">
+          <a href="{% url 'promocao_edit' promocao.id %}" class="btn-small btn-edit">Editar</a>
+          <a href="{% url 'promocao_delete' promocao.id %}" class="btn-small btn-delete">Remover</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>Ainda não tem promoções</h3>
+      <p>Crie a sua primeira promoção para aumentar as vendas dos seus produtos.</p>
+      <a href="{% url 'promocao_create' %}" class="btn-add-promotion">Criar Primeira Promoção</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

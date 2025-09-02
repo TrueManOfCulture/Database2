@@ -6,46 +6,270 @@
   <title>Lista de Pedidos - TechMart</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; }
+    
+    /* Header with login/logout */
+    header {
+      background: #1d3557; color: #fff; padding: 15px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    
+    .header-title {
+      font-size: 1.5em; font-weight: bold;
+    }
+    
+    .header-auth {
+      display: flex; align-items: center; gap: 15px;
+    }
+    
+    .user-info {
+      font-size: 0.9em; color: #a8dadc;
+    }
+    
+    .auth-link {
+      color: #fff; text-decoration: none; padding: 8px 16px;
+      background: #457b9d; border-radius: 5px; font-weight: bold;
+      transition: background 0.3s;
+    }
+    
+    .auth-link:hover {
+      background: #1d3557; text-decoration: none;
+    }
+    
+    .logout-link {
+      background: #e63946;
+    }
+    
+    .logout-link:hover {
+      background: #d62828;
+    }
+    
     h2 { text-align: center; font-size: 2.2em; color: #1d3557; margin-top: 30px; }
-    .container { display: flex; flex-wrap: wrap; justify-content: center; padding: 20px; gap: 20px; }
-    .card {
-      background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 20px; width: 280px; text-align: center; transition: transform 0.3s, box-shadow 0.3s;
+    
+    .container { 
+      max-width: 900px; 
+      margin: 30px auto; 
+      padding: 20px;
+      background: #fff; 
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
-    .card h3 { color: #1d3557; margin: 10px 0; }
-    .card p { font-size: 1.1em; color: #457b9d; }
-    .actions { margin-top: 15px; }
+    
+    .pedido-card {
+      background: #fff; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px; 
+      margin-bottom: 20px;
+    }
+    
+    .pedido-header {
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    
+    .pedido-id {
+      font-size: 1.2em; 
+      font-weight: bold; 
+      color: #1d3557;
+    }
+    
+    .pedido-status {
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+    
+    .status-pendente {
+      background-color: #ffd166;
+      color: #7a5900;
+    }
+    
+    .status-processando {
+      background-color: #06d6a0;
+      color: #005a43;
+    }
+    
+    .status-concluido {
+      background-color: #118ab2;
+      color: white;
+    }
+    
+    .status-cancelado {
+      background-color: #ef476f;
+      color: white;
+    }
+    
+    .produtos-table {
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-bottom: 15px;
+    }
+    
+    .produtos-table th, .produtos-table td {
+      padding: 10px; 
+      text-align: left; 
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .produtos-table th { 
+      background: #a8dadc; 
+      color: #1d3557; 
+    }
+    
+    .actions { 
+      text-align: right; 
+      margin-top: 15px;
+    }
+    
     .actions a {
-      text-decoration: none; margin: 5px; padding: 8px 12px; border-radius: 5px;
-      color: white; background-color: #a8dadc; font-weight: bold; transition: background 0.3s;
+      text-decoration: none; 
+      margin: 5px; 
+      padding: 8px 12px; 
+      border-radius: 5px;
+      color: white; 
+      font-weight: bold; 
+      transition: background 0.3s;
     }
-    .actions a:hover { background-color: #457b9d; }
-    .add { display: inline-block; padding: 12px 20px; background: #1d3557; color: white; border-radius: 5px;
-      font-size: 1.1em; text-decoration: none; margin: 20px auto; text-align: center; transition: background 0.3s; }
-    .add:hover { background: #457b9d; }
+    
+    .edit-btn {
+      background-color: #457b9d;
+    }
+    
+    .edit-btn:hover {
+      background-color: #1d3557;
+    }
+    
+    .delete-btn {
+      background-color: #e63946;
+    }
+    
+    .delete-btn:hover {
+      background-color: #d62828;
+    }
+    
+    .empty-message {
+      text-align: center; 
+      font-size: 1.2em; 
+      color: #457b9d;
+      padding: 40px 0;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column; gap: 10px; text-align: center;
+      }
+      
+      .header-auth {
+        justify-content: center;
+      }
+      
+      .pedido-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>Pedidos</h2>
-  <div style="text-align:center;">
-    <a href="{% url 'pedido_create' %}" class="add">Novo Pedido</a>
-  </div>
-  <div class="container">
-    {% for pedido in pedidos %}
-    <div class="card">
-      <h3>Pedido #{{ pedido.id_pedido }}</h3>
-      <p>Cliente: {{ pedido.id_cliente }}</p>
-      <p>Status: {{ pedido.status }}</p>
-      <p>Data: {{ pedido.data_efetuado }}</p>
-      <div class="actions">
-        <a href="{% url 'pedido_update' pedido.id_pedido %}">Editar</a>
-        <a href="{% url 'pedido_delete' pedido.id_pedido %}">Apagar</a>
-      </div>
+  <header>
+    <div class="header-title">TechMart - Meus Pedidos</div>
+    <div class="header-auth">
+      {% if request.session.user_id %}
+        <span class="user-info">
+          Bem-vindo, 
+          {% if request.session.tipo_usuario == 'cliente' %}
+            Cliente
+          {% elif request.session.tipo_usuario == 'fornecedor' %}
+            Fornecedor
+          {% else %}
+            Utilizador
+          {% endif %}
+        </span>
+        <a href="{% url 'home' %}" class="auth-link">Produtos</a>
+        {% if request.session.tipo_usuario == 'cliente' %}
+          <a href="{% url 'pedido_list' %}" class="auth-link">Meus Pedidos</a>
+        {% elif request.session.tipo_usuario == 'fornecedor' %}
+          <a href="{% url 'fornecedor_page' %}" class="auth-link">Painel Fornecedor</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="auth-link logout-link">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="auth-link">Login</a>
+        <a href="{% url 'register' %}" class="auth-link">Registar</a>
+      {% endif %}
     </div>
-    {% empty %}
-    <p>Nenhum pedido encontrado.</p>
-    {% endfor %}
+  </header>
+
+  <h2>Meus Pedidos</h2>
+  
+  {% if messages %}
+      <div style="margin-bottom: 15px;">
+        {% for message in messages %}
+          <div style="
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            {% if message.tags == 'error' %}
+              background: #ffe0e0; color: #b00020; border: 1px solid #b00020;
+            {% elif message.tags == 'success' %}
+              background: #e0ffe5; color: #006400; border: 1px solid #006400;
+            {% else %}
+              background: #f0f0f0; color: #333; border: 1px solid #ccc;
+            {% endif %}
+          ">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  <div class="container">
+    {% if pedidos %}
+      {% for pedido in pedidos %}
+      <div class="pedido-card">
+        <div class="pedido-header">
+          <div class="pedido-id">Pedido #{{ pedido.id_pedido }}</div>
+          <div class="pedido-status status-{{ pedido.status|lower }}">
+            {{ pedido.status }}
+          </div>
+        </div>
+        
+        <p><strong>Data:</strong> {{ pedido.data_efetuado }}</p>
+        
+        <table class="produtos-table">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Quantidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for produto in pedido.produtos %}
+            <tr>
+              <td>{{ produto.nome_produto }}</td>
+              <td>{{ produto.quantidade }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        
+        <div class="actions">
+          <a href="{% url 'pedido_update' pedido.id_pedido %}" class="edit-btn">Editar</a>
+          <a href="{% url 'pedido_delete' pedido.id_pedido %}" class="delete-btn">Cancelar</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-message">
+        Nenhum pedido encontrado.
+      </div>
+    {% endif %}
   </div>
 </body>
 </html>

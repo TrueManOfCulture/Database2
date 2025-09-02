@@ -1,26 +1,3 @@
-/* ========================================
-   TRIGGER: Atualizar DATA_CONCLUIDO quando pedido for concluído
-   ======================================== */
-CREATE OR REPLACE FUNCTION set_data_concluido()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.status = 'Concluido' AND OLD.status IS DISTINCT FROM 'Concluido' THEN
-        NEW.data_concluido := CURRENT_DATE;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trg_set_data_concluido ON pedido;
-CREATE TRIGGER trg_set_data_concluido
-BEFORE UPDATE ON pedido
-FOR EACH ROW
-EXECUTE FUNCTION set_data_concluido();
-
-
-/* ========================================
-   Função: Criar Pedido
-   ======================================== */
 CREATE OR REPLACE FUNCTION criar_pedido(
     p_id_cliente INT,
     p_produtos INT[],
@@ -31,12 +8,10 @@ DECLARE
     i INT;
     stock_atual INT;
 BEGIN
-    -- Validar cliente
     IF NOT EXISTS (SELECT 1 FROM cliente WHERE id_cliente = p_id_cliente) THEN
         RAISE EXCEPTION 'Cliente % não existe', p_id_cliente;
     END IF;
 
-    -- Validar arrays
     IF array_length(p_produtos, 1) IS NULL OR array_length(p_quantidades, 1) IS NULL THEN
         RAISE EXCEPTION 'Listas de produtos e quantidades não podem ser vazias';
     END IF;
@@ -45,7 +20,6 @@ BEGIN
         RAISE EXCEPTION 'Número de produtos e quantidades não correspondem';
     END IF;
 
-    -- Verificar stock de todos os produtos antes de criar pedido
     FOR i IN 1..array_length(p_produtos, 1) LOOP
         SELECT quantidade INTO stock_atual
         FROM stock
@@ -59,12 +33,10 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- Criar pedido
     INSERT INTO pedido (id_cliente, status)
     VALUES (p_id_cliente, 'Pendente')
     RETURNING id_pedido INTO v_pedido_id;
 
-    -- Inserir os produtos associados
     FOR i IN 1..array_length(p_produtos, 1) LOOP
         INSERT INTO tem2 (id_pedido, id_produto, quantidade)
         VALUES (v_pedido_id, p_produtos[i], p_quantidades[i]);
@@ -74,62 +46,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-/* ========================================
-   TRIGGER: Validar cliente ao criar pedido
-   ======================================== */
-CREATE OR REPLACE FUNCTION check_cliente_exist()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM cliente WHERE id_cliente = NEW.id_cliente) THEN
-        RAISE EXCEPTION 'Cliente % não existe', NEW.id_cliente;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trg_check_cliente ON pedido;
-CREATE TRIGGER trg_check_cliente
-BEFORE INSERT ON pedido
-FOR EACH ROW
-EXECUTE FUNCTION check_cliente_exist();
-
-
-/* ========================================
-   TRIGGER: Validar stock antes de adicionar produto ao pedido
-   ======================================== */
-CREATE OR REPLACE FUNCTION check_stock()
-RETURNS TRIGGER AS $$
-DECLARE
-    quantidade_disponivel INT;
-BEGIN
-    SELECT quantidade INTO quantidade_disponivel
-    FROM stock
-    WHERE id_produto = NEW.id_produto;
-
-    IF quantidade_disponivel IS NULL THEN
-        RAISE EXCEPTION 'Produto % não tem stock registado', NEW.id_produto;
-    END IF;
-
-    IF quantidade_disponivel < NEW.quantidade THEN
-        RAISE EXCEPTION 'Stock insuficiente para produto %: disponível %, solicitado %',
-            NEW.id_produto, quantidade_disponivel, NEW.quantidade;
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trg_check_stock ON tem2;
-CREATE TRIGGER trg_check_stock
-BEFORE INSERT ON tem2
-FOR EACH ROW
-EXECUTE FUNCTION check_stock();
-
-
-/* ========================================
-   PROCEDURE: Processar Pedido
-   ======================================== */
 CREATE OR REPLACE PROCEDURE processar_pedido(p_pedido_id INT)
 LANGUAGE plpgsql
 AS $$
@@ -137,7 +53,6 @@ DECLARE
     r RECORD;
     stock_atual INT;
 BEGIN
-    -- Verificar se pedido existe e está pendente
     IF NOT EXISTS (SELECT 1 FROM pedido WHERE id_pedido = p_pedido_id) THEN
         RAISE EXCEPTION 'Pedido % não existe', p_pedido_id;
     END IF;
@@ -146,7 +61,6 @@ BEGIN
         RAISE EXCEPTION 'Pedido % já foi processado ou não está pendente', p_pedido_id;
     END IF;
 
-    -- Verificar stock de todos os produtos
     FOR r IN
         SELECT id_produto, quantidade FROM tem2 WHERE id_pedido = p_pedido_id
     LOOP
@@ -162,7 +76,6 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- Atualizar stock
     FOR r IN
         SELECT id_produto, quantidade FROM tem2 WHERE id_pedido = p_pedido_id
     LOOP
@@ -172,7 +85,6 @@ BEGIN
         WHERE id_produto = r.id_produto;
     END LOOP;
 
-    -- Atualizar status do pedido
     UPDATE pedido
     SET status = 'Concluido',
         data_concluido = CURRENT_DATE
@@ -180,54 +92,6 @@ BEGIN
 
 END;
 $$;
-
-
-/* ========================================
-   Função: Quantos pedidos fez um cliente
-   ======================================== */
-CREATE OR REPLACE FUNCTION pedidos_por_cliente(p_cliente_id INT)
-RETURNS INT AS $$
-DECLARE
-    total INT;
-BEGIN
-    SELECT COUNT(*) INTO total
-    FROM pedido
-    WHERE id_cliente = p_cliente_id;
-    RETURN total;
-END;
-$$ LANGUAGE plpgsql;
-
-/* ========================================
-   Função genérica: criar utilizador (cliente ou fornecedor)
-   ======================================== */
-CREATE OR REPLACE FUNCTION create_usuario(
-    p_nome TEXT,
-    p_email TEXT,
-    p_password TEXT,
-    p_tipo_usuario TEXT,
-    p_genero TEXT DEFAULT NULL,
-    p_data_nascimento DATE DEFAULT NULL,
-    p_morada TEXT DEFAULT NULL,
-    p_nif TEXT DEFAULT NULL
-) RETURNS INT AS $$
-DECLARE
-    new_id INT;
-BEGIN
-    INSERT INTO usuario (nome, email, password, tipo_usuario)
-    VALUES (p_nome, p_email, p_password, p_tipo_usuario)
-    RETURNING id_usuario INTO new_id;
-
-    IF p_tipo_usuario = 'cliente' THEN
-        INSERT INTO cliente (id_cliente, genero, data_nascimento, morada)
-        VALUES (new_id, p_genero, p_data_nascimento, p_morada);
-    ELSIF p_tipo_usuario = 'fornecedor' THEN
-        INSERT INTO fornecedor (id_fornecedor, nif)
-        VALUES (new_id, p_nif);
-    END IF;
-
-    RETURN new_id;
-END;
-$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE VIEW vw_cliente_pedidos AS
 SELECT 
@@ -239,6 +103,55 @@ SELECT
     t.quantidade
 FROM pedido p
 JOIN tem2 t ON p.id_pedido = t.id_pedido;
+
+CREATE OR REPLACE PROCEDURE adicionar_produto_pedido(
+    p_id_cliente INT,
+    p_id_produto INT,
+    p_quantidade INT DEFAULT 1
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_pedido_id INT;
+    v_stock INT;
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM cliente WHERE id_cliente = p_id_cliente) THEN
+        RAISE EXCEPTION 'Cliente % não existe', p_id_cliente;
+    END IF;
+
+    SELECT quantidade INTO v_stock
+    FROM stock
+    WHERE id_produto = p_id_produto;
+
+    IF v_stock IS NULL THEN
+        RAISE EXCEPTION 'Produto % não existe em stock', p_id_produto;
+    ELSIF v_stock < p_quantidade THEN
+        RAISE EXCEPTION 'Stock insuficiente para produto %: disponível %, solicitado %',
+            p_id_produto, v_stock, p_quantidade;
+    END IF;
+
+    SELECT id_pedido INTO v_pedido_id
+    FROM pedido
+    WHERE id_cliente = p_id_cliente AND status = 'Pendente'
+    LIMIT 1;
+
+    IF v_pedido_id IS NULL THEN
+        INSERT INTO pedido (id_cliente, status)
+        VALUES (p_id_cliente, 'Pendente')
+        RETURNING id_pedido INTO v_pedido_id;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM tem2 WHERE id_pedido = v_pedido_id AND id_produto = p_id_produto) THEN
+        -- Incrementar quantidade existente
+        UPDATE tem2
+        SET quantidade = quantidade + p_quantidade
+        WHERE id_pedido = v_pedido_id AND id_produto = p_id_produto;
+    ELSE
+        INSERT INTO tem2 (id_pedido, id_produto, quantidade)
+        VALUES (v_pedido_id, p_id_produto, p_quantidade);
+    END IF;
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION pedidos_por_fornecedor(p_id_fornecedor INT)
 RETURNS TABLE (
@@ -271,3 +184,79 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION set_data_concluido()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'Concluido' AND OLD.status IS DISTINCT FROM 'Concluido' THEN
+        NEW.data_concluido := CURRENT_DATE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_set_data_concluido ON pedido;
+CREATE TRIGGER trg_set_data_concluido
+BEFORE UPDATE ON pedido
+FOR EACH ROW
+EXECUTE FUNCTION set_data_concluido();
+
+CREATE OR REPLACE FUNCTION create_usuario(
+    p_nome TEXT,
+    p_email TEXT,
+    p_password TEXT,
+    p_tipo_usuario TEXT,
+    p_genero TEXT DEFAULT NULL,
+    p_data_nascimento DATE DEFAULT NULL,
+    p_morada TEXT DEFAULT NULL,
+    p_nif TEXT DEFAULT NULL
+) RETURNS INT AS $$
+DECLARE
+    new_id INT;
+BEGIN
+    INSERT INTO usuario (nome, email, password, tipo_usuario)
+    VALUES (p_nome, p_email, p_password, p_tipo_usuario)
+    RETURNING id_usuario INTO new_id;
+
+    IF p_tipo_usuario = 'cliente' THEN
+        INSERT INTO cliente (id_cliente, genero, data_nascimento, morada)
+        VALUES (new_id, p_genero, p_data_nascimento, p_morada);
+    ELSIF p_tipo_usuario = 'fornecedor' THEN
+        INSERT INTO fornecedor (id_fornecedor, nif)
+        VALUES (new_id, p_nif);
+    END IF;
+
+    RETURN new_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE VIEW vw_utilizadores_completos AS
+SELECT 
+    u.id_usuario,
+    u.nome,
+    u.email,
+    u.tipo_usuario,
+    u.password,
+    c.genero,
+    c.data_nascimento,
+    c.morada,
+    NULL::VARCHAR(20) AS nif,  -- NULL for clientes
+    'cliente' AS tipo_entidade
+FROM usuario u
+JOIN cliente c ON u.id_usuario = c.id_cliente
+
+UNION ALL
+
+SELECT 
+    u.id_usuario,
+    u.nome,
+    u.email,
+    u.tipo_usuario,
+    u.password,
+    NULL::VARCHAR(20) AS genero,
+    NULL::DATE AS data_nascimento,
+    NULL::VARCHAR(255) AS morada,
+    f.nif,
+    'fornecedor' AS tipo_entidade
+FROM usuario u
+JOIN fornecedor f ON u.id_usuario = f.id_fornecedor;

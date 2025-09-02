@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.id %}Editar Promoção{% else %}Criar Nova Promoção{% endif %} - TechMart{% endblock %}
+{% block header_title %}{% if form.instance.id %}Editar Promoção{% else %}Criar Nova Promoção{% endif %}{% endblock %}
+
+{% block extra_css %}
+  .supplier-content {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+  }
+  .page-title {
+    text-align: center;
+    color: #1d3557;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #1d3557;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  .promotion-form {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .form-group {
+    flex: 1;
+    margin-bottom: 15px;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #1d3557;
+  }
+  .form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+  }
+  .form-control:focus {
+    border-color: #1d3557;
+    outline: none;
+  }
+  .form-actions {
+    margin-top: 30px;
+    text-align: center;
+  }
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 10px;
+    transition: background 0.3s;
+  }
+  .btn-primary {
+    background: #1d3557;
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #457b9d;
+  }
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+  .btn-secondary:hover {
+    background: #545b62;
+  }
+  .form-text {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+{% endblock %}
+
+{% block content %}
+<div class="supplier-content">
+  <a href="{% url 'supplier_promocoes' %}" class="back-link">← Voltar às Promoções</a>
+  
+  <div class="promotion-form">
+    <h2 class="page-title">{% if form.instance.id %}Editar Promoção{% else %}Criar Nova Promoção{% endif %}</h2>
+    
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="produto">Produto *</label>
+        <select id="produto" name="produto" class="form-control" required>
+          <option value="">Selecione um produto</option>
+          {% for produto in produtos %}
+            <option value="{{ produto.id }}" {% if form.produto.value == produto.id %}selected{% endif %}>
+              {{ produto.nome }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="tipo">Tipo de Promoção *</label>
+        <select id="tipo" name="tipo" class="form-control" required>
+          <option value="">Selecione o tipo</option>
+          <option value="desconto_percentual" {% if form.tipo.value == 'desconto_percentual' %}selected{% endif %}>Desconto Percentual</option>
+          <option value="desconto_fixo" {% if form.tipo.value == 'desconto_fixo' %}selected{% endif %}>Desconto Fixo</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="valor">Valor *</label>
+        <input type="number" id="valor" name="valor" class="form-control" 
+               step="{% if form.tipo.value == 'desconto_percentual' %}1{% else %}0.01{% endif %}" 
+               min="0" 
+               {% if form.tipo.value == 'desconto_percentual' %}max="100"{% endif %}
+               value="{{ form.valor.value|default_if_none:'' }}" required>
+        <div class="form-text">
+          {% if form.tipo.value == 'desconto_percentual' %}
+            Insira um valor entre 0 e 100 para o percentual de desconto.
+          {% else %}
+            Insira o valor do desconto em euros.
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="data_inicio">Data de Início *</label>
+          <input type="date" id="data_inicio" name="data_inicio" class="form-control" 
+                 value="{{ form.data_inicio.value|date:'Y-m-d' }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="data_fim">Data de Fim *</label>
+          <input type="date" id="data_fim" name="data_fim" class="form-control" 
+                 value="{{ form.data_fim.value|date:'Y-m-d' }}" required>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          {% if form.instance.id %}Atualizar Promoção{% else %}Criar Promoção{% endif %}
+        </button>
+        <a href="{% url 'supplier_promocoes' %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('tipo');
+    const valorInput = document.getElementById('valor');
+    const valorHelp = document.querySelector('.form-text');
+    
+    function updateValorInput() {
+      if (tipoSelect.value === 'desconto_percentual') {
+        valorInput.step = '1';
+        valorInput.min = '0';
+        valorInput.max = '100';
+        valorHelp.textContent = 'Insira um valor entre 0 e 100 para o percentual de desconto.';
+      } else if (tipoSelect.value === 'desconto_fixo') {
+        valorInput.step = '0.01';
+        valorInput.min = '0';
+        valorInput.removeAttribute('max');
+        valorHelp.textContent = 'Insira o valor do desconto em euros.';
+      } else {
+        valorHelp.textContent = 'Selecione um tipo de promoção primeiro.';
+      }
+    }
+    
+    // Initial update
+    updateValorInput();
+    
+    // Update on change
+    tipoSelect.addEventListener('change', updateValorInput);
+  });
+</script>
+{% endblock %}

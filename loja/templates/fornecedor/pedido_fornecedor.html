@@ -23,21 +23,21 @@
       <div class="order-card">
         <div class="order-info">
           <strong>Pedido ID:</strong> {{ pedido.id_pedido }} |
-          <strong>Cliente ID:</strong> {{ pedido.id_cliente }} |
+          <strong>Cliente:</strong> {{ pedido.cliente_nome }} |
           <strong>Status:</strong> {{ pedido.status }} |
           <strong>Data:</strong> {{ pedido.data_efetuado }}
         </div>
         <table>
           <thead>
             <tr>
-              <th>Produto ID</th>
+              <th>Produto</th>
               <th>Quantidade</th>
             </tr>
           </thead>
           <tbody>
             {% for produto in pedido.produtos %}
             <tr>
-              <td>{{ produto.id_produto }}</td>
+              <td>{{ produto.nome_produto }}</td>
               <td>{{ produto.quantidade }}</td>
             </tr>
             {% endfor %}

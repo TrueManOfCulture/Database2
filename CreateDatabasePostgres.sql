@@ -1,8 +1,3 @@
-/* =============================
-   TechMart - Base de Dados (Postgres)
-   ============================= */
-
-/* Drop antigo */
 DROP TABLE IF EXISTS TEM2 CASCADE;
 DROP TABLE IF EXISTS STOCK CASCADE;
 DROP TABLE IF EXISTS PEDIDO CASCADE;
@@ -10,9 +5,8 @@ DROP TABLE IF EXISTS CLIENTE CASCADE;
 DROP TABLE IF EXISTS FORNECEDOR CASCADE;
 DROP TABLE IF EXISTS USUARIO CASCADE;
 
-/* =============================
-   USUARIO (base para cliente e fornecedor)
-   ============================= */
+CREATE SEQUENCE produto_id_seq START 16;
+
 CREATE TABLE USUARIO (
     ID_USUARIO SERIAL PRIMARY KEY,
     NOME VARCHAR(255) NOT NULL,
@@ -20,9 +14,7 @@ CREATE TABLE USUARIO (
     PASSWORD VARCHAR(255) NOT NULL,
     TIPO_USUARIO VARCHAR(20) NOT NULL
 );
-/* =============================
-   CLIENTE (herda de USUARIO via FK 1:1)
-   ============================= */
+
 CREATE TABLE CLIENTE (
     ID_CLIENTE INT PRIMARY KEY,
     GENERO VARCHAR(20),
@@ -31,18 +23,12 @@ CREATE TABLE CLIENTE (
     FOREIGN KEY (ID_CLIENTE) REFERENCES USUARIO(ID_USUARIO) ON DELETE CASCADE
 );
 
-/* =============================
-   FORNECEDOR (herda de USUARIO via FK 1:1)
-   ============================= */
 CREATE TABLE FORNECEDOR (
     ID_FORNECEDOR INT PRIMARY KEY,
     NIF VARCHAR(20),
     FOREIGN KEY (ID_FORNECEDOR) REFERENCES USUARIO(ID_USUARIO) ON DELETE CASCADE
 );
 
-/* =============================
-   PEDIDO
-   ============================= */
 CREATE TABLE PEDIDO (
     ID_PEDIDO SERIAL PRIMARY KEY,
     ID_CLIENTE INT NOT NULL,
@@ -52,10 +38,6 @@ CREATE TABLE PEDIDO (
     FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTE(ID_CLIENTE) ON DELETE CASCADE
 );
 
-/* =============================
-   STOCK
-   (referencia fornecedor e produto lógico do MongoDB)
-   ============================= */
 CREATE TABLE STOCK (
     ID_STOCK SERIAL PRIMARY KEY,
     ID_FORNECEDOR INT NOT NULL,
@@ -65,15 +47,14 @@ CREATE TABLE STOCK (
     FOREIGN KEY (ID_FORNECEDOR) REFERENCES FORNECEDOR(ID_FORNECEDOR) ON DELETE CASCADE
 );
 
-/* =============================
-   TEM2 (pedido-produto)
-   liga pedido em Postgres a produto no MongoDB
-   ============================= */
 CREATE TABLE TEM2 (
     ID_PEDIDO INT NOT NULL,
-    ID_PRODUTO INT NOT NULL, -- ref a Produto no Mongo
+    ID_PRODUTO INT NOT NULL,
     QUANTIDADE INT NOT NULL CHECK (QUANTIDADE > 0),
     PRIMARY KEY (ID_PEDIDO, ID_PRODUTO),
     FOREIGN KEY (ID_PEDIDO) REFERENCES PEDIDO(ID_PEDIDO) ON DELETE CASCADE
 );
 
+ALTER TABLE usuario ALTER COLUMN id_usuario SET DEFAULT nextval('usuario_id_seq');
+ALTER TABLE pedido ALTER COLUMN id_pedido SET DEFAULT nextval('pedido_id_seq');
+ALTER TABLE stock ALTER COLUMN id_stock SET DEFAULT nextval('stock_id_seq');

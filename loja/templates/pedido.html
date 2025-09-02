@@ -44,6 +44,27 @@
 </head>
 <body>
   <header>TechMart - Carrinho</header>
+  {% if messages %}
+      <div style="margin-bottom: 15px;">
+        {% for message in messages %}
+          <div style="
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            {% if message.tags == 'error' %}
+              background: #ffe0e0; color: #b00020; border: 1px solid #b00020;
+            {% elif message.tags == 'success' %}
+              background: #e0ffe5; color: #006400; border: 1px solid #006400;
+            {% else %}
+              background: #f0f0f0; color: #333; border: 1px solid #ccc;
+            {% endif %}
+          ">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   <div class="container">
     {% if carrinho.itens %}
     <form method="post">

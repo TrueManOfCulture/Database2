@@ -1,9 +1,10 @@
 use BD2_TP
+
 db.createCollection("produto", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["nome", "preco", "categoria", "marca", "condicao"],
+      required: ["nome", "preco", "categoria", "marca", "condicao", "fornecedor_id"],
       properties: {
         nome: { bsonType: "string" },
         descricao: { bsonType: "string" },
@@ -11,7 +12,8 @@ db.createCollection("produto", {
         categoria: { bsonType: "string" },
         marca: { bsonType: "string" },
         condicao: { bsonType: "string" },
-        detalhes_condicao: { bsonType: "string" }
+        detalhes_condicao: { bsonType: "string" },
+        fornecedor_id: { bsonType: "int" }
       }
     }
   }
@@ -24,7 +26,7 @@ db.createCollection("promocao", {
       required: ["tipo", "valor", "data_inicio", "data_fim", "produto_id"],
       properties: {
         tipo: { bsonType: "string" },
-        valor: { bsonType: ["double", "int"] },  // Allow both types
+        valor: { bsonType: ["double", "int"] },
         data_inicio: { bsonType: "date" },
         data_fim: { bsonType: "date" },
         produto_id: { bsonType: "int" }
@@ -42,7 +44,7 @@ db.createCollection("avaliacao", {
         usuario_id: { bsonType: "int" },
         produto_id: { bsonType: "int" },
         comentario: { bsonType: "string" },
-        nota: { bsonType: "double" },
+        nota: { bsonType: "int" },
         data: { bsonType: "date" }
       }
     }

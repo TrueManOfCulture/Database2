@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if is_edit %}Editar Produto{% else %}Adicionar Novo Produto{% endif %} - TechMart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #1d3557;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #1d3557;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        
+        .form-control:focus {
+            border-color: #1d3557;
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1d3557;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #457b9d;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1d3557;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .stock-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stock-info h3 {
+            margin-top: 0;
+            color: #1d3557;
+            font-size: 1.2em;
+        }
+        
+        .stock-current {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'supplier_produto_list' %}" class="back-link">← Voltar à Lista de Produtos</a>
+        
+        <h1>{% if is_edit %}Editar Produto{% else %}Adicionar Novo Produto{% endif %}</h1>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="nome">Nome do Produto *</label>
+                <input type="text" id="nome" name="nome" class="form-control" 
+                       value="{% if produto %}{{ produto.nome }}{% endif %}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" class="form-control">{% if produto %}{{ produto.descricao }}{% endif %}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="preco">Preço (€) *</label>
+                <input type="number" id="preco" name="preco" class="form-control" 
+                       step="0.01" min="0" value="{% if produto %}{{ produto.preco }}{% endif %}" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria" class="form-control">
+                        <option value="">Selecione uma categoria</option>
+                        {% for cat in categorias %}
+                            <option value="{{ cat }}" {% if produto and produto.categoria == cat %}selected{% endif %}>
+                                {{ cat }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" class="form-control" 
+                           value="{% if produto %}{{ produto.marca }}{% endif %}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="condicao">Condição</label>
+                <select id="condicao" name="condicao" class="form-control">
+                    <option value="">Selecione a condição</option>
+                    <option value="novo" {% if produto.condicao == 'novo' %}selected{% endif %}>Novo</option>
+                    <option value="usado" {% if produto.condicao == 'usado' %}selected{% endif %}>Usado</option>
+                    <option value="recondicionado" {% if produto.condicao == 'recondicionado' %}selected{% endif %}>Recondicionado</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="detalhes_condicao">Detalhes da Condição</label>
+                <textarea id="detalhes_condicao" name="detalhes_condicao" class="form-control">{% if produto %}{{ produto.detalhes_condicao }}{% endif %}</textarea>
+            </div>
+            
+            <!-- Stock Management Section -->
+            <div class="stock-info">
+                <h3>Gestão de Stock</h3>
+                
+                {% if is_edit and stock_atual %}
+                <div class="stock-current">
+                    <strong>Stock Atual:</strong> {{ stock_atual.quantidade }} unidades<br>
+                    <small>Última atualização: {{ stock_atual.ultimo_update|date:"d/m/Y" }}</small>
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="quantidade_stock">
+                        {% if is_edit %}Nova Quantidade em Stock{% else %}Quantidade Inicial em Stock{% endif %}
+                    </label>
+                    <input type="number" id="quantidade_stock" name="quantidade_stock" 
+                           class="form-control" min="0" 
+                           value="{% if is_edit and stock_atual %}{{ stock_atual.quantidade }}{% else %}0{% endif %}">
+                    {% if is_edit %}
+                    <small style="color: #666;">Deixe em branco para manter a quantidade atual</small>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if is_edit %}Atualizar Produto{% else %}Criar Produto{% endif %}
+                </button>
+                <a href="{% url 'supplier_produto_list' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

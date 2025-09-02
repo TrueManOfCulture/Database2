@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}TechMart{% endblock %}</title>
+  <style>
+    /* Global Styles */
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f4f7f6; 
+      margin: 0; 
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header Styles */
+    header {
+      background: #1d3557; 
+      color: #fff; 
+      padding: 15px;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+    }
+    
+    .header-title {
+      font-size: 1.5em; 
+      font-weight: bold;
+    }
+    
+    .header-auth {
+      display: flex; 
+      align-items: center; 
+      gap: 15px;
+    }
+    
+    .user-info {
+      font-size: 0.9em; 
+      color: #a8dadc;
+    }
+    
+    .auth-link {
+      color: #fff; 
+      text-decoration: none; 
+      padding: 8px 16px;
+      background: #457b9d; 
+      border-radius: 5px; 
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    
+    .auth-link:hover {
+      background: #1d3557; 
+      text-decoration: none;
+    }
+    
+    .logout-link {
+      background: #e63946;
+    }
+    
+    .logout-link:hover {
+      background: #d62828;
+    }
+    
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    /* Card Styles */
+    .card {
+      background: #fff; 
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px; 
+      margin-bottom: 20px;
+    }
+    
+    /* Button Styles */
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      background: #1d3557;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .btn:hover { 
+      background: #457b9d; 
+      transform: translateY(-2px); 
+    }
+    
+    .btn-danger {
+      background: #e63946;
+    }
+    
+    .btn-danger:hover {
+      background: #c1121f;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+      background: #545b62;
+    }
+    
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #1d3557;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column; 
+        gap: 10px; 
+        text-align: center;
+      }
+      
+      .header-auth {
+        justify-content: center;
+      }
+      
+      .main-content {
+        padding: 10px;
+      }
+    }
+    
+    {% block extra_css %}{% endblock %}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-title">TechMart - {% block header_title %}E-Commerce{% endblock %}</div>
+    <div class="header-auth">
+      {% if request.session.user_id %}
+        <span class="user-info">
+          Bem-vindo, 
+          {% if request.session.tipo_usuario == 'cliente' %}
+            Cliente
+          {% elif request.session.tipo_usuario == 'fornecedor' %}
+            Fornecedor
+          {% else %}
+            Utilizador
+          {% endif %}
+        </span>
+        <a href="{% url 'home' %}" class="auth-link">Produtos</a>
+        {% if request.session.tipo_usuario == 'cliente' %}
+          <a href="{% url 'pedido_list' %}" class="auth-link">Meus Pedidos</a>
+        {% elif request.session.tipo_usuario == 'fornecedor' %}
+          <a href="{% url 'fornecedor_page' %}" class="auth-link">Painel Fornecedor</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="auth-link logout-link">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="auth-link">Login</a>
+        <a href="{% url 'register' %}" class="auth-link">Registar</a>
+      {% endif %}
+    </div>
+  </header>
+  
+  <main class="main-content">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+    
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

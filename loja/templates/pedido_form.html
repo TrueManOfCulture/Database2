@@ -1,35 +1,318 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulário Pedido - TechMart</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f7f6;
-      display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-    .container {
-      background: #fff; padding: 30px; border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px;
-    }
-    h2 { color: #1d3557; margin-bottom: 20px; text-align: center; }
-    form { display: flex; flex-direction: column; }
-    form input, form select, form textarea {
-      margin: 10px 0; padding: 12px; border: 1px solid #ddd;
-      border-radius: 5px; font-size: 1em;
-    }
-    .btn { background: #1d3557; color: #fff; padding: 12px;
-      border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; }
-    .btn:hover { background: #457b9d; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>{% if form.instance.pk %}Editar Pedido{% else %}Novo Pedido{% endif %}</h2>
-    <form method="POST">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn">Salvar</button>
-    </form>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Pedido - TechMart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f7f6;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        color: #1d3557;
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid #a8dadc;
+        padding-bottom: 10px;
+      }
+
+      .form-section {
+        margin-bottom: 30px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .form-section h3 {
+        color: #457b9d;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #1d3557;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #457b9d;
+        box-shadow: 0 0 5px rgba(69, 123, 157, 0.3);
+      }
+
+      .produto-item {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: grid;
+        grid-template-columns: 2fr 1fr 100px 80px;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .produto-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 100px 80px;
+        gap: 15px;
+        padding: 10px 15px;
+        background: #a8dadc;
+        color: #1d3557;
+        font-weight: bold;
+        border-radius: 5px;
+        margin-bottom: 15px;
+      }
+
+      .checkbox-group {
+        text-align: center;
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .btn-primary {
+        background: #1d3557;
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: #457b9d;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: #fff;
+        margin-left: 10px;
+      }
+
+      .btn-secondary:hover {
+        background: #545b62;
+      }
+
+      .alert {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        border-left: 4px solid;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+      }
+
+      .alert-error {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+      }
+
+      .actions {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 2px solid #a8dadc;
+      }
+
+      .novo-produto {
+        background: #e8f5e8;
+        border-color: #28a745;
+      }
+
+      .pedido-status {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+        font-weight: bold;
+        display: inline-block;
+      }
+
+      .status-pendente {
+        background-color: #ffd166;
+        color: #7a5900;
+      }
+
+      .status-processando {
+        background-color: #06d6a0;
+        color: #005a43;
+      }
+
+      .status-concluido {
+        background-color: #118ab2;
+        color: white;
+      }
+
+      .status-cancelado {
+        background-color: #ef476f;
+        color: white;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .produto-item,
+        .produto-header {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Editar Pedido #{{ pedido.id_pedido }}</h2>
+
+      {% if messages %} {% for message in messages %}
+      <div
+        class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- Status do Pedido -->
+        <div class="form-section">
+          <h3>Informações do Pedido</h3>
+          <p>
+            <strong>Status:</strong>
+            <span class="pedido-status status-{{ pedido.status|lower }}"
+              >{{ pedido.status }}</span
+            >
+          </p>
+          <p><strong>Data do Pedido:</strong> {{ pedido.data_efetuado }}</p>
+        </div>
+
+        <!-- Produtos no Pedido -->
+        <div class="form-section">
+          <h3>Produtos no Pedido</h3>
+
+          {% if produto_formset.forms %}
+          <div class="produto-header">
+            <div>Produto</div>
+            <div>Quantidade</div>
+            <div>Ações</div>
+            <div>Remover</div>
+          </div>
+
+          {{ produto_formset.management_form }} 
+          {% for form in produto_formset.forms %}
+          <div class="produto-item">
+            {{ form.id_produto }}
+            <div>{{ form.nome_produto }}</div>
+            <div>{{ form.quantidade }}</div>
+            <div class="checkbox-group">
+              <label> {{ form.remover }} Remover </label>
+            </div>
+            <div></div>
+          </div>
+          {% endfor %} {% else %}
+          <p>Nenhum produto encontrado no pedido.</p>
+          {% endif %}
+        </div>
+
+        <!-- Adicionar Novo Produto -->
+        <div class="form-section novo-produto">
+          <h3>Adicionar Produto</h3>
+          <div class="produto-item">
+            <div class="form-group">
+              <label for="{{ novo_produto_form.id_produto.id_for_label }}"
+                >{{ novo_produto_form.id_produto.label }}:</label
+              >
+              {{ novo_produto_form.id_produto }}
+            </div>
+            <div class="form-group">
+              <label for="{{ novo_produto_form.quantidade.id_for_label }}"
+                >Quantidade:</label
+              >
+              {{ novo_produto_form.quantidade }}
+            </div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">
+            Atualizar Pedido
+          </button>
+          <a href="{% url 'pedido_list' %}" class="btn btn-secondary"
+            >Cancelar</a
+          >
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Add some JavaScript for better UX
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-hide quantity input when remove is checked
+        const removeCheckboxes = document.querySelectorAll(
+          'input[type="checkbox"][name*="remover"]'
+        );
+        removeCheckboxes.forEach(function (checkbox) {
+          checkbox.addEventListener("change", function () {
+            const quantityInput = this.closest(".produto-item").querySelector(
+              'input[name*="quantidade"]'
+            );
+            if (this.checked) {
+              quantityInput.style.opacity = "0.5";
+              quantityInput.disabled = true;
+            } else {
+              quantityInput.style.opacity = "1";
+              quantityInput.disabled = false;
+            }
+          });
+        });
+      });
+    </script>
+  </body>
 </html>

@@ -1,25 +1,73 @@
-/* =============================
-   BD2_TP - Fake Data Population
-   Execute in MongoDB shell (mongosh)
-   ============================= */
-
 use BD2_TP
 
-/* =============================
-   POPULATE PRODUTO COLLECTION
-   ============================= */
-
 db.produto.insertMany([
+  {
+    _id: 1,
+    nome: "iPhone 15 Pro",
+    descricao: "Smartphone premium da Apple com chip A17 Pro e câmeras profissionais",
+    preco: 1199.99,
+    categoria: "Smartphones",
+    marca: "Apple",
+    condicao: "Novo",
+    detalhes_condicao: "Novo lacrado com garantia de 2 anos",
+    fornecedor_id: 6
+  },
+  {
+    _id: 2,
+    nome: "Samsung Galaxy S24 Ultra",
+    descricao: "Flagship Android com S Pen integrada e câmeras de 200MP",
+    preco: 1399.99,
+    categoria: "Smartphones",
+    marca: "Samsung",
+    condicao: "Novo",
+    detalhes_condicao: "Novo com todos os acessórios incluídos",
+    fornecedor_id: 6
+  },
+  {
+    _id: 3,
+    nome: "MacBook Air M3",
+    descricao: "Laptop ultrafino com chip M3, 8GB RAM e SSD de 256GB",
+    preco: 1299.99,
+    categoria: "Laptops",
+    marca: "Apple",
+    condicao: "Novo",
+    detalhes_condicao: "Novo selado com garantia Apple",
+    fornecedor_id: 6
+  },
+  {
+    _id: 4,
+    nome: "Dell XPS 13",
+    descricao: "Ultrabook premium com Intel Core i7-1360P e tela InfinityEdge",
+    preco: 1499.99,
+    categoria: "Laptops",
+    marca: "Dell",
+    condicao: "Recondicionado",
+    detalhes_condicao: "Recondicionado Grade A, garantia de 1 ano",
+    fornecedor_id: 6
+  },
+  {
+    _id: 5,
+    nome: "iPad Air M2",
+    descricao: "Tablet versátil com chip M2 e suporte ao Apple Pencil",
+    preco: 649.99,
+    categoria: "Tablets",
+    marca: "Apple",
+    condicao: "Usado",
+    detalhes_condicao: "Usado em excelente estado, sem riscos visíveis",
+    fornecedor_id: 6
+  },
 
+  {
+    _id: 6,
+    nome: "Lenovo ThinkPad T14",
     descricao: "Laptop empresarial com Intel Core i5-1235U, 8GB RAM e SSD de 256GB",
     preco: 1299.99,
     categoria: "Laptops",
     marca: "Lenovo",
     condicao: "Recondicionado",
-    detalhes_condicao: "Recondicionado profissionalmente, garantia de 1 ano"
+    detalhes_condicao: "Recondicionado profissionalmente, garantia de 1 ano",
+    fornecedor_id: 7
   },
-
-  // Headphones
   {
     _id: 7,
     nome: "Sony WH-1000XM5",
@@ -28,7 +76,8 @@ db.produto.insertMany([
     categoria: "Audio",
     marca: "Sony",
     condicao: "Novo",
-    detalhes_condicao: "Novo com todos os acessórios incluídos"
+    detalhes_condicao: "Novo com todos os acessórios incluídos",
+    fornecedor_id: 7
   },
   {
     _id: 8,
@@ -38,7 +87,8 @@ db.produto.insertMany([
     categoria: "Audio",
     marca: "Apple",
     condicao: "Novo",
-    detalhes_condicao: "Selado na embalagem original"
+    detalhes_condicao: "Selado na embalagem original",
+    fornecedor_id: 7
   },
   {
     _id: 9,
@@ -48,10 +98,9 @@ db.produto.insertMany([
     categoria: "Audio",
     marca: "Bose",
     condicao: "Usado",
-    detalhes_condicao: "Usado pouquíssimo, como novo"
+    detalhes_condicao: "Usado pouquíssimo, como novo",
+    fornecedor_id: 7
   },
-
-  // Gaming
   {
     _id: 10,
     nome: "PlayStation 5",
@@ -60,8 +109,10 @@ db.produto.insertMany([
     categoria: "Gaming",
     marca: "Sony",
     condicao: "Novo",
-    detalhes_condicao: "Novo lacrado com 2 anos de garantia"
+    detalhes_condicao: "Novo lacrado com 2 anos de garantia",
+    fornecedor_id: 7
   },
+
   {
     _id: 11,
     nome: "Xbox Series X",
@@ -70,7 +121,8 @@ db.produto.insertMany([
     categoria: "Gaming",
     marca: "Microsoft",
     condicao: "Recondicionado",
-    detalhes_condicao: "Recondicionado pela Microsoft, garantia oficial"
+    detalhes_condicao: "Recondicionado pela Microsoft, garantia oficial",
+    fornecedor_id: 8
   },
   {
     _id: 12,
@@ -80,10 +132,9 @@ db.produto.insertMany([
     categoria: "Gaming",
     marca: "Nintendo",
     condicao: "Usado",
-    detalhes_condicao: "Usado em excelente estado, sem riscos na tela"
+    detalhes_condicao: "Usado em excelente estado, sem riscos na tela",
+    fornecedor_id: 8
   },
-
-  // Tablets
   {
     _id: 13,
     nome: "iPad Pro 12.9\" M2",
@@ -91,7 +142,9 @@ db.produto.insertMany([
     preco: 1099.99,
     categoria: "Tablets",
     marca: "Apple",
-    condicao: "Novo"
+    condicao: "Novo",
+    detalhes_condicao: "Novo com Apple Pencil incluído",
+    fornecedor_id: 8
   },
   {
     _id: 14,
@@ -101,7 +154,8 @@ db.produto.insertMany([
     categoria: "Tablets",
     marca: "Samsung",
     condicao: "Recondicionado",
-    detalhes_condicao: "Grade A, indistinguível do novo"
+    detalhes_condicao: "Grade A, indistinguível do novo",
+    fornecedor_id: 8
   },
   {
     _id: 15,
@@ -111,142 +165,139 @@ db.produto.insertMany([
     categoria: "Tablets",
     marca: "Microsoft",
     condicao: "Novo",
-    detalhes_condicao: "Novo com Type Cover e Surface Pen incluídos"
+    detalhes_condicao: "Novo com Type Cover e Surface Pen incluídos",
+    fornecedor_id: 8
+  },
+
+  {
+    _id: 16,
+    nome: "ASUS ROG Strix RTX 4080",
+    descricao: "Placa gráfica premium para gaming e criação de conteúdo",
+    preco: 1299.99,
+    categoria: "Componentes",
+    marca: "ASUS",
+    condicao: "Novo",
+    detalhes_condicao: "Novo lacrado com garantia de 3 anos",
+    fornecedor_id: 9
+  },
+  {
+    _id: 17,
+    nome: "AMD Ryzen 9 7900X",
+    descricao: "Processador de alta performance com 12 cores e 24 threads",
+    preco: 549.99,
+    categoria: "Componentes",
+    marca: "AMD",
+    condicao: "Novo",
+    detalhes_condicao: "Novo selado na embalagem original",
+    fornecedor_id: 9
+  },
+  {
+    _id: 18,
+    nome: "Corsair Vengeance LPX 32GB",
+    descricao: "Kit de memória DDR4-3200 de alta performance",
+    preco: 149.99,
+    categoria: "Componentes",
+    marca: "Corsair",
+    condicao: "Novo",
+    detalhes_condicao: "Novo com garantia vitalícia",
+    fornecedor_id: 9
+  },
+  {
+    _id: 19,
+    nome: "Samsung 980 Pro 1TB",
+    descricao: "SSD NVMe M.2 de alta velocidade para gaming e profissionais",
+    preco: 129.99,
+    categoria: "Componentes",
+    marca: "Samsung",
+    condicao: "Novo",
+    detalhes_condicao: "Novo com garantia de 5 anos",
+    fornecedor_id: 9
+  },
+  {
+    _id: 20,
+    nome: "NZXT Kraken X63",
+    descricao: "Sistema de refrigeração líquida AIO de 280mm",
+    preco: 179.99,
+    categoria: "Componentes",
+    marca: "NZXT",
+    condicao: "Recondicionado",
+    detalhes_condicao: "Recondicionado e testado, garantia de 1 ano",
+    fornecedor_id: 9
   }
 ]);
-
-/* =============================
-   POPULATE PROMOCAO COLLECTION
-   ============================= */
 
 db.promocao.insertMany([
   {
     tipo: "desconto_percentual",
     valor: 15.00,
     data_inicio: new Date("2024-08-01"),
-    data_fim: new Date("2024-08-31"),
+    data_fim: new Date("2025-12-31"),
     produto_id: 1
   },
   {
-    tipo: "desconto_fixo", 
+    tipo: "desconto_fixo",
     valor: 200.00,
-    data_inicio: new Date("2024-08-15"),
-    data_fim: new Date("2024-09-15"),
+    data_inicio: new Date("2024-12-01"),
+    data_fim: new Date("2025-03-31"),
     produto_id: 4
   },
   {
     tipo: "desconto_percentual",
     valor: 25.00,
-    data_inicio: new Date("2024-08-20"),
-    data_fim: new Date("2024-09-05"),
+    data_inicio: new Date("2024-11-01"),
+    data_fim: new Date("2025-02-28"),
     produto_id: 7
   },
   {
     tipo: "desconto_percentual",
     valor: 20.00,
-    data_inicio: new Date("2024-08-10"),
-    data_fim: new Date("2024-08-30"),
+    data_inicio: new Date("2024-09-01"),
+    data_fim: new Date("2025-08-31"),
     produto_id: 10
   },
   {
     tipo: "desconto_fixo",
     valor: 50.00,
-    data_inicio: new Date("2024-08-18"),
-    data_fim: new Date("2024-09-01"),
-    produto_id: 8
-  },
-  {
-    tipo: "desconto_percentual",
-    valor: 30.00,
-    data_inicio: new Date("2024-09-01"),
-    data_fim: new Date("2024-09-30"),
-    produto_id: 2
-  },
-  {
-    tipo: "desconto_percentual",
-    valor: 10.00,
-    data_inicio: new Date("2024-09-15"),
-    data_fim: new Date("2024-10-15"),
-    produto_id: 13
-  },
-  {
-    tipo: "desconto_fixo",
-    valor: 150.00,
     data_inicio: new Date("2024-10-01"),
-    data_fim: new Date("2024-10-31"),
-    produto_id: 5
-  },
-  {
-    tipo: "desconto_percentual",
-    valor: 35.00,
-    data_inicio: new Date("2024-07-01"),
-    data_fim: new Date("2024-07-31"),
-    produto_id: 11
-  },
-  {
-    tipo: "desconto_fixo",
-    valor: 75.00,
-    data_inicio: new Date("2024-06-15"),
-    data_fim: new Date("2024-07-15"),
-    produto_id: 9
-  },
-  {
-    tipo: "desconto_percentual",
-    valor: 12.00,
-    data_inicio: new Date("2024-07-20"),
-    data_fim: new Date("2024-08-10"),
-    produto_id: 12
-  },
-  {
-    tipo: "desconto_fixo",
-    valor: 100.00,
-    data_inicio: new Date("2024-05-01"),
-    data_fim: new Date("2024-05-31"),
-    produto_id: 6
+    data_fim: new Date("2025-06-30"),
+    produto_id: 8
   }
 ]);
 
-/* =============================
-   VERIFICATION QUERIES
-   ============================= */
-
-// Check inserted data
-print("=== PRODUTOS INSERIDOS ===");
-db.produto.countDocuments();
-
-print("=== PROMOÇÕES INSERIDAS ===");
-db.promocao.countDocuments();
-
-// Sample queries
-print("=== PRODUTOS POR CATEGORIA ===");
-db.produto.aggregate([
-  { $group: { _id: "$categoria", count: { $sum: 1 }, avg_price: { $avg: "$preco" } } }
-]);
-
-print("=== PROMOÇÕES ATIVAS ===");
-db.promocao.find({
-  data_inicio: { $lte: new Date() },
-  data_fim: { $gte: new Date() }
-});
-
-print("=== PRODUTOS EM PROMOÇÃO (com desconto ativo) ===");
-db.produto.aggregate([
+db.avaliacao.insertMany([
   {
-    $lookup: {
-      from: "promocao",
-      localField: "_id",
-      foreignField: "produto_id",
-      as: "promocoes_ativas",
-      pipeline: [
-        {
-          $match: {
-            data_inicio: { $lte: new Date() },
-            data_fim: { $gte: new Date() }
-          }
-        }
-      ]
-    }
+    usuario_id: 2,
+    produto_id: 6,
+    comentario: "Excelente laptop empresarial, muito robusto e confiável!",
+    nota: 4,
+    data: new Date("2025-08-11")
   },
-  { $match: { "promocoes_ativas.0": { $exists: true } } },
-  { $project: { nome: 1, preco: 1, marca: 1, promocoes_ativas: 1 } }
+  {
+    usuario_id: 4,
+    produto_id: 6,
+    comentario: "Bom produto, mas esperava mais da bateria",
+    nota: 3,
+    data: new Date("2025-08-16")
+  },
+  {
+    usuario_id: 2,
+    produto_id: 7,
+    comentario: "Cancelamento de ruído incrível, som cristalino!",
+    nota: 5,
+    data: new Date("2025-08-13")
+  },
+  {
+    usuario_id: 3,
+    produto_id: 10,
+    comentario: "Console incrível, gráficos de última geração",
+    nota: 5,
+    data: new Date("2025-08-15")
+  },
+  {
+    usuario_id: 4,
+    produto_id: 1,
+    comentario: "iPhone fantástico, câmera profissional mesmo!",
+    nota: 5,
+    data: new Date("2025-08-12")
+  }
 ]);

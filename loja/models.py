@@ -1,115 +1,94 @@
 from django.db import models
 
 class Usuario(models.Model):
-    ID_USUARIO = models.AutoField(primary_key=True)  # SERIAL in PostgreSQL
-    NOME = models.CharField(max_length=255, default="Unkno")  # Matching PostgreSQL schema
-    EMAIL = models.EmailField(max_length=255, unique=True)  # UNIQUE constraint
-    PASSWORD = models.CharField(max_length=255)
-    TIPO_USUARIO = models.CharField(max_length=20)  # VARCHAR(20) in schema
+    id_usuario = models.AutoField(primary_key=True)
+    nome = models.CharField(max_length=255, default="Unkno")
+    email = models.EmailField(max_length=255, unique=True)
+    password = models.CharField(max_length=255)
+    tipo_usuario = models.CharField(max_length=20)
 
     class Meta:
         db_table = 'usuario'
         managed = False
 
     def __str__(self):
-        return self.NOME
+        return self.nome
 
 class Cliente(models.Model):
-    ID_CLIENTE = models.OneToOneField(
+    id_cliente = models.OneToOneField(
         Usuario, 
         on_delete=models.CASCADE, 
-        primary_key=True,
-        db_column='id_cliente'  # Foreign key to Usuario
+        primary_key=True
     )
-    GENERO = models.CharField(max_length=20, blank=True, null=True)
-    DATA_NASCIMENTO = models.DateField(blank=True, null=True)
-    MORADA = models.CharField(max_length=255, blank=True, null=True)
+    genero = models.CharField(max_length=20, blank=True, null=True)
+    data_nascimento = models.DateField(blank=True, null=True)
+    morada = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         db_table = 'cliente'
         managed = False
 
     def __str__(self):
-        return f"Cliente: {self.ID_CLIENTE.NOME}"
+        return f"Cliente: {self.id_cliente.nome}"
 
 class Fornecedor(models.Model):
-    ID_FORNECEDOR = models.OneToOneField(
+    id_fornecedor = models.OneToOneField(
         Usuario, 
         on_delete=models.CASCADE, 
-        primary_key=True,
-        db_column='id_fornecedor'  # Foreign key to Usuario
+        primary_key=True
     )
-    NIF = models.CharField(max_length=20, blank=True, null=True)
+    nif = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         db_table = 'fornecedor'
         managed = False
 
     def __str__(self):
-        return f"Fornecedor: {self.ID_FORNECEDOR.NOME}"
+        return f"Fornecedor: {self.id_fornecedor.nome}"
 
 class Pedido(models.Model):
-    ID_PEDIDO = models.AutoField(primary_key=True)  # SERIAL in PostgreSQL
-    ID_CLIENTE = models.ForeignKey(
-        Cliente, 
-        on_delete=models.CASCADE, 
-        db_column='id_cliente'
-    )
-    DATA_EFETUADO = models.DateField(auto_now_add=True)  # DEFAULT CURRENT_DATE
-    STATUS = models.CharField(max_length=50, default='Pendente')
-    DATA_CONCLUIDO = models.DateField(blank=True, null=True)
+    id_pedido = models.AutoField(primary_key=True)
+    id_cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, db_column='id_cliente')
+    data_efetuado = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=50, default='Pendente')
+    data_concluido = models.DateField(blank=True, null=True)
 
     class Meta:
         db_table = 'pedido'
         managed = False
 
     def __str__(self):
-        return f"Pedido {self.ID_PEDIDO} - {self.STATUS}"
+        return f"Pedido {self.id_pedido} - {self.status}"
 
 class Stock(models.Model):
-    ID_STOCK = models.AutoField(primary_key=True)  # SERIAL in PostgreSQL
-    ID_FORNECEDOR = models.ForeignKey(
-        Fornecedor, 
-        on_delete=models.CASCADE,
-        db_column='id_fornecedor'
-    )
-    ID_PRODUTO = models.IntegerField()  # Reference to MongoDB Product
-    QUANTIDADE = models.IntegerField()
-    ULTIMO_UPDATE = models.DateField(auto_now=True)  # DEFAULT CURRENT_DATE
+    id_stock = models.AutoField(primary_key=True)
+    id_fornecedor = models.ForeignKey(Fornecedor, on_delete=models.CASCADE, db_column='id_fornecedor')
+    id_produto = models.IntegerField()
+    quantidade = models.IntegerField()
+    ultimo_update = models.DateField(auto_now=True)
 
     class Meta:
         db_table = 'stock'
         managed = False
 
     def __str__(self):
-        return f"Stock {self.ID_STOCK} - Produto {self.ID_PRODUTO} ({self.QUANTIDADE})"
+        return f"Stock {self.id_stock} - Produto {self.id_produto} ({self.quantidade})"
 
 class Tem2(models.Model):
-    # Composite primary key (ID_PEDIDO, ID_PRODUTO)
-    ID_PEDIDO = models.ForeignKey(
-        Pedido, 
-        on_delete=models.CASCADE,
-        db_column='id_pedido'
-    )
-    ID_PRODUTO = models.IntegerField()  # Reference to MongoDB Product
-    QUANTIDADE = models.IntegerField()
+    id_pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, db_column='id_pedido')
+    id_produto = models.IntegerField()
+    quantidade = models.IntegerField()
 
     class Meta:
         db_table = 'tem2'
-        unique_together = ('ID_PEDIDO', 'ID_PRODUTO')
+        unique_together = ('id_pedido', 'id_produto')
         managed = False
 
     def __str__(self):
-        return f"Pedido {self.ID_PEDIDO.ID_PEDIDO} - Produto {self.ID_PRODUTO} ({self.QUANTIDADE})"
+        return f"Pedido {self.id_pedido.id_pedido} - Produto {self.id_produto} ({self.quantidade})"
 
-# Note: Produto and Promocao models removed since they're not in your PostgreSQL schema
-# (assuming they're stored in MongoDB as indicated by the comments)
-
-# If you need a Produto model for Django admin or other purposes, 
-# you can create an unmanaged model:
 class Produto(models.Model):
-    # This is an unmanaged model representing MongoDB data
-    ID_PRODUTO = models.IntegerField(primary_key=True)
+    id_produto = models.IntegerField(primary_key=True)
     nome = models.CharField(max_length=255, blank=True, null=True)
     descricao = models.TextField(blank=True, null=True)
     preco = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -119,9 +98,7 @@ class Produto(models.Model):
     detalhes_condicao = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False  # Django won't manage this table
-        db_table = 'produto_virtual'  # Virtual table name
+        managed = False
 
     def __str__(self):
-        return self.nome or f"Produto {self.ID_PRODUTO}"
-
+        return self.nome or f"Produto {self.id_produto}"
