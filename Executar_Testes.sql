@@ -1,0 +1,10 @@
+SELECT 'Testing create_usuario function' as test_name, TEST_create_usuario() as result;
+SELECT 'Testing adicionar_produto_pedido procedure' as test_name, TEST_adicionar_produto_pedido() as result;
+SELECT 'Testing vw_cliente_pedidos view' as test_name, TEST_vw_cliente_pedidos() as result;
+SELECT 'Testing set_data_concluido trigger' as test_name, TEST_set_data_concluido() as result;
+SELECT 'Testing vw_utilizadores_completos view' as test_name, TEST_vw_utilizadores_completos() as result;
+SELECT 'Testing vw_produto_fornecedor view' as test_name, TEST_vw_produto_fornecedor() as result;
+SELECT 'Testing pedidos_por_fornecedor function' as test_name, TEST_pedidos_por_fornecedor() as result;
+SELECT 'Testing pedidos_todos_fornecedores function' as test_name, TEST_pedidos_todos_fornecedores() as result;
+SELECT 'Testing criar_pedido function' as test_name, TEST_criar_pedido() as result;
+SELECT 'Testing processar_pedido procedure' as test_name, TEST_processar_pedido() as result;

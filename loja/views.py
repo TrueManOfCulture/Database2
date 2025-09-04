@@ -25,10 +25,9 @@ def home(request):
         with connection.cursor() as cursor:
             placeholders = ','.join(['%s'] * len(produto_ids))
             cursor.execute(f"""
-                SELECT s.id_produto, u.nome 
-                FROM stock s
-                JOIN usuario u ON s.id_fornecedor = u.id_usuario
-                WHERE s.id_produto IN ({placeholders})
+                SELECT id_produto, fornecedor_nome 
+                FROM vw_produto_fornecedor
+                WHERE id_produto IN ({placeholders})
             """, produto_ids)
             
             for id_produto, nome in cursor.fetchall():
@@ -727,7 +726,6 @@ def supplier_produto_list(request):
     return render(request, 'fornecedor/produto_list.html', {'produtos': produtos})
 
 def supplier_pedidos(request):
-    
     supplier_id = request.session.get("user_id")
     tipo = request.session.get("tipo_usuario")
     if not supplier_id or tipo not in ["fornecedor", "admin"]:
@@ -736,33 +734,16 @@ def supplier_pedidos(request):
     
     with connection.cursor() as cursor:
         if tipo == "fornecedor":
-            cursor.execute("""
-                SELECT p.id_pedido, p.status, p.data_efetuado, p.id_cliente,
-                    t.id_produto, t.quantidade, u.nome as cliente_nome
-                FROM pedido p
-                JOIN tem2 t ON p.id_pedido = t.id_pedido
-                JOIN stock s ON t.id_produto = s.id_produto
-                JOIN usuario u ON p.id_cliente = u.id_usuario
-                WHERE s.id_fornecedor = %s
-                ORDER BY p.data_efetuado DESC
-            """, [supplier_id])
+            cursor.execute("SELECT * FROM pedidos_por_fornecedor(%s)", [supplier_id])
         else:
-            cursor.execute("""
-                SELECT p.id_pedido, p.status, p.data_efetuado, p.id_cliente,
-                    t.id_produto, t.quantidade, u.nome as cliente_nome
-                FROM pedido p
-                JOIN tem2 t ON p.id_pedido = t.id_pedido
-                JOIN stock s ON t.id_produto = s.id_produto
-                JOIN usuario u ON p.id_cliente = u.id_usuario
-                ORDER BY p.data_efetuado DESC
-            """)
+            cursor.execute("SELECT * FROM pedidos_todos_fornecedores()")
         rows = cursor.fetchall()
     
     pedidos_dict = defaultdict(list)
     pedidos_info = {}
     
     for row in rows:
-        id_pedido, status, data_efetuado, id_cliente, id_produto, quantidade, cliente_nome = row
+        id_pedido, id_cliente, status, data_efetuado, id_produto, quantidade, cliente_nome = row
         pedidos_info[id_pedido] = {
             "status": status,
             "data_efetuado": data_efetuado,

@@ -11,7 +11,6 @@ class ProdutoService:
         self.avaliacoes_collection = self.db['avaliacao']
 
     def list_produtos(self, search=None, categoria=None, avaliacao=None):
-        """List produtos with optional filtering by search, category, and average rating"""
         query = {}
 
         if search:
@@ -44,7 +43,7 @@ class ProdutoService:
         return produtos
 
     def get_categorias(self):
-        """Get list of unique categories"""
+        
         return self.produtos_collection.distinct("categoria")
 
     def get_produto(self, produto_id):
