@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
-from .models import Usuario, Pedido, Stock
-from .forms import UsuarioForm, PedidoForm, StockForm,PedidoProdutoFormSet, NovoProdutoForm
+from django.contrib.auth import logout as auth_logout
+from .models import *
+from .forms import *
 from .mongodb_service import ProdutoService
 from django.db import connection
 from django.contrib import messages
-from bson import ObjectId
 from datetime import datetime
 from collections import defaultdict
 
@@ -19,10 +18,8 @@ def home(request):
     produtos = produto_service.list_produtos(search=search, categoria=categoria, avaliacao=avaliacao)
     categorias = produto_service.get_categorias()
     
-    # Get supplier names for all products
     produto_ids = [produto["_id"] for produto in produtos]
     
-    # Create a mapping of product IDs to supplier names
     fornecedor_map = {}
     if produto_ids:
         with connection.cursor() as cursor:
@@ -44,8 +41,6 @@ def home(request):
             produto["preco_promocional"] = produto_service.calcular_preco_promocional(
                 produto["preco"], promocao_ativa
             )
-        
-        # Add supplier name to product
         produto["fornecedor_nome"] = fornecedor_map.get(produto["_id"], "Fornecedor Desconhecido")
 
     ratings = [5, 4, 3, 2, 1]
@@ -73,15 +68,15 @@ def user_login(request):
         if user:
             user_id, tipo = user
 
-            # Guardar o user na sessão (substituto do Django auth_login)
             request.session["user_id"] = user_id
             request.session["tipo_usuario"] = tipo
 
-            # Redirecionar consoante o tipo
             if tipo == "cliente":
-                return redirect("home")   # página de produtos
+                return redirect("home")
             elif tipo == "fornecedor":
-                return redirect("fornecedor_page")    # página de fornecedor
+                return redirect("fornecedor_page")
+            elif tipo == "admin":
+                return redirect("admin_home")
         else:
             messages.error(request, "Email ou password inválidos.")
             return render(request, "login.html")
@@ -106,58 +101,22 @@ def user_register(request):
                 morada = request.POST.get("morada")
 
                 cursor.execute("""
-                    SELECT criar_cliente(%s, %s, %s, %s, %s, %s)
-                """, [nome, email, password, genero, data_nascimento, morada])
+                    SELECT create_usuario(%s, %s, %s, %s, %s, %s, %s, %s)
+                """, [nome, email, password, tipo_usuario, genero, data_nascimento, morada, None])
 
             elif tipo_usuario == "fornecedor":
                 nif = request.POST.get("nif")
 
                 cursor.execute("""
-                    SELECT criar_fornecedor(%s, %s, %s, %s)
-                """, [nome, email, password, nif])
+                    SELECT create_usuario(%s, %s, %s, %s, %s, %s, %s, %s)
+                """, [nome, email, password, tipo_usuario, None, None, None, nif])
 
         return redirect("login")
 
     return render(request, "register.html")
 
 def fornecedor_page(request):
-    return render(request, "fornecedor/fornecedor_page.html")
-
-# ==============================
-# USUARIO CRUD (apenas se quiseres gerir no painel)
-# ==============================
-def usuario_list(request):
-    usuarios = Usuario.objects.all()
-    return render(request, 'usuario_list.html', {'usuarios': usuarios})
-
-def usuario_create(request):
-    if request.method == 'POST':
-        form = UsuarioForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('usuario_list')
-    else:
-        form = UsuarioForm()
-    return render(request, 'usuario_form.html', {'form': form})
-
-def usuario_update(request, pk):
-    usuario = get_object_or_404(Usuario, pk=pk)
-    if request.method == 'POST':
-        form = UsuarioForm(request.POST, instance=usuario)
-        if form.is_valid():
-            form.save()
-            return redirect('usuario_list')
-    else:
-        form = UsuarioForm(instance=usuario)
-    return render(request, 'usuario_form.html', {'form': form})
-
-def usuario_delete(request, pk):
-    usuario = get_object_or_404(Usuario, pk=pk)
-    if request.method == 'POST':
-        usuario.delete()
-        return redirect('usuario_list')
-    return render(request, 'usuario_confirm_delete.html', {'usuario': usuario})
-
+    return render(request, "fornecedor/home.html")
 
 def pedido_list(request):
     user_id = request.session.get("user_id")
@@ -169,7 +128,6 @@ def pedido_list(request):
         cur.execute("SELECT id_pedido, status, data_efetuado, id_produto, quantidade FROM vw_cliente_pedidos WHERE id_cliente = %s", [user_id])
         rows = cur.fetchall()
     
-    # Group products by order and fetch product names
     pedidos_dict = defaultdict(list)
     pedidos_info = {}
     
@@ -180,7 +138,6 @@ def pedido_list(request):
             "data_efetuado": data_efetuado
         }
         
-        # Get product name from MongoDB
         try:
             produto = produto_service.get_produto(id_produto)
             nome_produto = produto.get("nome", f"Produto #{id_produto}")
@@ -193,11 +150,10 @@ def pedido_list(request):
             "quantidade": quantidade
         })
     
-    # Combine info and products
     pedidos = []
     for id_pedido, produtos in pedidos_dict.items():
         pedidos.append({
-            "id_pedido": id_pedido,  # Changed from ID_PEDIDO to id_pedido
+            "id_pedido": id_pedido,
             "status": pedidos_info[id_pedido]["status"],
             "data_efetuado": pedidos_info[id_pedido]["data_efetuado"],
             "produtos": produtos
@@ -215,21 +171,114 @@ def pedido_create(request):
         form = PedidoForm()
     return render(request, 'pedido_form.html', {'form': form})
 
+def pedido_confirmar(request, pk):
+    """Confirm/Process a pedido - mark as completed and update stock"""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        messages.error(request, "Faça login para confirmar pedidos.")
+        return redirect("login")
+    
+    # Get pedido and verify ownership
+    pedido = get_object_or_404(Pedido, pk=pk)
+    if pedido.id_cliente_id != int(user_id):
+        messages.error(request, "Você não tem permissão para confirmar este pedido.")
+        return redirect('pedido_list')
+    
+    # Check if pedido can be confirmed
+    if pedido.status == 'Concluido':
+        messages.warning(request, "Este pedido já foi confirmado e concluído.")
+        return redirect('pedido_list')
+    
+    if pedido.status == 'Cancelado':
+        messages.error(request, "Pedidos cancelados não podem ser confirmados.")
+        return redirect('pedido_list')
+    
+    if request.method == 'POST':
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL processar_pedido(%s)", [pk])
+            
+            messages.success(request, f"Pedido #{pk} confirmado e processado com sucesso! O stock foi atualizado.")
+            
+        except Exception as e:
+            error_message = str(e)
+            if "Stock insuficiente" in error_message:
+                messages.error(request, f"Não foi possível confirmar o pedido: {error_message}")
+            elif "não existe" in error_message:
+                messages.error(request, f"Erro: {error_message}")
+            else:
+                messages.error(request, f"Erro ao confirmar pedido: {error_message}")
+        
+        return redirect('pedido_list')
+    
+    # GET request - show confirmation page with stock verification
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT t.id_produto, t.quantidade, s.quantidade as stock_disponivel
+            FROM tem2 t
+            LEFT JOIN stock s ON t.id_produto = s.id_produto
+            WHERE t.id_pedido = %s
+        """, [pk])
+        produtos_info = cursor.fetchall()
+    
+    produtos_detalhes = []
+    tem_stock_suficiente = True
+    total_valor = 0
+    
+    for id_produto, quantidade_pedida, stock_disponivel in produtos_info:
+        try:
+            produto = produto_service.get_produto(id_produto)
+            nome_produto = produto.get("nome", f"Produto #{id_produto}")
+            preco_produto = produto.get("preco", 0)
+            
+            # Check for active promotion
+            promocao_ativa = produto_service.get_promocao_ativa(id_produto)
+            if promocao_ativa:
+                preco_final = produto_service.calcular_preco_promocional(preco_produto, promocao_ativa)
+            else:
+                preco_final = preco_produto
+                
+            subtotal = preco_final * quantidade_pedida
+            total_valor += subtotal
+            
+        except:
+            nome_produto = f"Produto #{id_produto}"
+            preco_final = 0
+            subtotal = 0
+        
+        stock_suficiente = stock_disponivel is not None and stock_disponivel >= quantidade_pedida
+        if not stock_suficiente:
+            tem_stock_suficiente = False
+        
+        produtos_detalhes.append({
+            "id_produto": id_produto,
+            "nome": nome_produto,
+            "quantidade_pedida": quantidade_pedida,
+            "stock_disponivel": stock_disponivel or 0,
+            "stock_suficiente": stock_suficiente,
+            "preco_unitario": preco_final,
+            "subtotal": subtotal
+        })
+    
+    return render(request, 'pedido_confirmar.html', {
+        'pedido': pedido,
+        'produtos_detalhes': produtos_detalhes,
+        'tem_stock_suficiente': tem_stock_suficiente,
+        'total_valor': total_valor
+    })
+
 def pedido_update(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk)
     
-    # Check if the user has permission to edit this order
     user_id = request.session.get("user_id")
     if not user_id or pedido.id_cliente_id != int(user_id):
         messages.error(request, "Você não tem permissão para editar este pedido.")
         return redirect('pedido_list')
-    
-    # Only allow editing if order is still pending
+
     if pedido.status not in ['Pendente', 'Processando']:
         messages.error(request, "Este pedido não pode mais ser editado.")
         return redirect('pedido_list')
     
-    # Get current products in the order
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT id_produto, quantidade 
@@ -237,8 +286,7 @@ def pedido_update(request, pk):
             WHERE id_pedido = %s
         """, [pedido.id_pedido])
         produtos_atuais = cursor.fetchall()
-    
-    # Prepare initial data for formset
+        
     initial_data = []
     for id_produto, quantidade in produtos_atuais:
         try:
@@ -316,7 +364,6 @@ def pedido_update(request, pk):
                                 """, [pedido.id_pedido, novo_id_produto])
                                 existing = cursor.fetchone()
                                 
-                                # Check stock availability
                                 cursor.execute("""
                                     SELECT quantidade FROM stock 
                                     WHERE id_produto = %s
@@ -372,7 +419,6 @@ def pedido_update(request, pk):
             except Exception as e:
                 messages.error(request, f"Erro ao atualizar pedido: {str(e)}")
         else:
-            # More specific error messages
             if not pedido_form_valid:
                 messages.error(request, "Erro no formulário do pedido. Verifique os dados.")
             if not produto_formset_valid:
@@ -389,6 +435,7 @@ def pedido_update(request, pk):
         'produto_formset': produto_formset,
         'novo_produto_form': novo_produto_form,
     })
+    
 def pedido_delete(request, pk):
     pedido = get_object_or_404(Pedido, pk=pk)
     if request.method == 'POST':
@@ -403,8 +450,9 @@ def produto_list(request):
 
 def produto_create(request):
     supplier_id = request.session.get("user_id")
+    tipo = request.session.get("tipo_usuario")
     if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
-        messages.error(request, "Acesso negado. Apenas fornecedores podem criar produtos.")
+        messages.error(request, "Acesso negado. Apenas fornecedores...")
         return redirect("login")
     
     if request.method == 'POST':
@@ -425,10 +473,7 @@ def produto_create(request):
         }
         
         try:
-            # Create product in MongoDB
             produto_service.create_produto(produto_data)
-            
-            # Add to stock table with the specified quantity
             quantidade_stock = int(request.POST.get("quantidade_stock", 0))
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -447,6 +492,7 @@ def produto_create(request):
         'categorias': categorias,
         'is_edit': False
     })
+    
 def produto_update(request, produto_id):
     try:
         produto_id = int(produto_id)
@@ -460,18 +506,25 @@ def produto_update(request, produto_id):
         return redirect('supplier_produto_list')
     
     supplier_id = request.session.get("user_id")
-    if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
+    tipo = request.session.get("tipo_usuario")
+    if not supplier_id or tipo not in ["fornecedor", "admin"]:
         messages.error(request, "Acesso negado. Apenas fornecedores podem editar produtos.")
         return redirect("login")
     
-    # Get current stock info
     stock_atual = None
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT quantidade, ultimo_update 
-            FROM stock 
-            WHERE id_produto = %s AND id_fornecedor = %s
-        """, [produto_id, supplier_id])
+        if tipo == "fornecedor":
+            cursor.execute("""
+                SELECT quantidade, ultimo_update 
+                FROM stock 
+                WHERE id_produto = %s AND id_fornecedor = %s
+            """, [produto_id, supplier_id])
+        else:
+            cursor.execute("""
+                SELECT quantidade, ultimo_update 
+                FROM stock 
+                WHERE id_produto = %s
+            """, [produto_id])
         stock_result = cursor.fetchone()
         if stock_result:
             stock_atual = {
@@ -484,7 +537,6 @@ def produto_update(request, produto_id):
     
     if request.method == 'POST':
         try:
-            # Update product in MongoDB
             update_data = {
                 "nome": request.POST.get("nome"),
                 "descricao": request.POST.get("descricao"),
@@ -497,15 +549,20 @@ def produto_update(request, produto_id):
             
             produto_service.update_produto(produto_id, update_data)
             
-            # Update stock quantity
             nova_quantidade = int(request.POST.get("quantidade_stock", 0))
             with connection.cursor() as cursor:
-                cursor.execute("""
-                    UPDATE stock 
-                    SET quantidade = %s, ultimo_update = CURRENT_DATE
-                    WHERE id_produto = %s AND id_fornecedor = %s
-                """, [nova_quantidade, produto_id, supplier_id])
-            
+                if tipo == "fornecedor":
+                    cursor.execute("""
+                        UPDATE stock 
+                        SET quantidade = %s, ultimo_update = CURRENT_DATE
+                        WHERE id_produto = %s AND id_fornecedor = %s
+                    """, [nova_quantidade, produto_id, supplier_id])
+                else:
+                    cursor.execute("""
+                        UPDATE stock 
+                        SET quantidade = %s, ultimo_update = CURRENT_DATE
+                        WHERE id_produto = %s
+                    """, [nova_quantidade, produto_id])
             messages.success(request, "Produto e stock atualizados com sucesso!")
             return redirect('supplier_produto_list')
             
@@ -545,7 +602,6 @@ def produto_detail(request, produto_id):
         messages.error(request, "Produto não encontrado.")
         return redirect("home")
     
-    # Get supplier name from the stock table (which links product to supplier)
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -561,14 +617,10 @@ def produto_detail(request, produto_id):
     except Exception as e:
         print(f"Error fetching supplier name: {e}")
     
-    # Get reviews from MongoDB
     avaliacoes = produto_service.list_avaliacoes(produto_id=produto["_id"])
     
     if avaliacoes:
-        # Get all unique user IDs
         user_ids = list(set(avaliacao["usuario_id"] for avaliacao in avaliacoes))
-        
-        # Fetch all user names in a single query
         user_names = {}
         try:
             with connection.cursor() as cursor:
@@ -579,8 +631,6 @@ def produto_detail(request, produto_id):
                     user_names[user_id] = nome
         except Exception as e:
             print(f"Error fetching user names: {e}")
-        
-        # Add user names to reviews
         for avaliacao in avaliacoes:
             avaliacao["usuario_nome"] = user_names.get(
                 avaliacao["usuario_id"], 
@@ -630,20 +680,25 @@ def submit_avaliacao(request, produto_id):
     
     return redirect("produto_detail", produto_id=produto_id)
 
-# Add these views to your views.py
-
 def supplier_produto_list(request):
     supplier_id = request.session.get("user_id")
-    if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
+    tipo = request.session.get("tipo_usuario")
+    if not supplier_id or tipo not in ["fornecedor", "admin"]:
         messages.error(request, "Acesso negado. Apenas fornecedores podem acessar esta página.")
         return redirect("login")
     
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT DISTINCT s.id_produto 
-            FROM stock s 
-            WHERE s.id_fornecedor = %s
-        """, [supplier_id])
+        if tipo == "fornecedor":
+            cursor.execute("""
+                SELECT DISTINCT s.id_produto 
+                FROM stock s 
+                WHERE s.id_fornecedor = %s
+            """, [supplier_id])
+        else:
+            cursor.execute("""
+                SELECT DISTINCT s.id_produto 
+                FROM stock s
+            """)
         produto_ids = [row[0] for row in cursor.fetchall()]
     
     produtos = []
@@ -651,11 +706,18 @@ def supplier_produto_list(request):
         produto = produto_service.get_produto(produto_id)
         if produto:
             with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT quantidade, ultimo_update 
-                    FROM stock 
-                    WHERE id_produto = %s AND id_fornecedor = %s
-                """, [produto_id, supplier_id])
+                if tipo == "fornecedor":
+                    cursor.execute("""
+                        SELECT quantidade, ultimo_update 
+                        FROM stock 
+                        WHERE id_produto = %s AND id_fornecedor = %s
+                    """, [produto_id, supplier_id])
+                else:
+                    cursor.execute("""
+                        SELECT quantidade, ultimo_update 
+                        FROM stock 
+                        WHERE id_produto = %s
+                    """, [produto_id])
                 stock_info = cursor.fetchone()
                 if stock_info:
                     produto["stock_quantidade"] = stock_info[0]
@@ -667,21 +729,33 @@ def supplier_produto_list(request):
 def supplier_pedidos(request):
     
     supplier_id = request.session.get("user_id")
-    if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
+    tipo = request.session.get("tipo_usuario")
+    if not supplier_id or tipo not in ["fornecedor", "admin"]:
         messages.error(request, "Acesso negado.")
         return redirect("login")
     
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT p.id_pedido, p.status, p.data_efetuado, p.id_cliente,
-                   t.id_produto, t.quantidade, u.nome as cliente_nome
-            FROM pedido p
-            JOIN tem2 t ON p.id_pedido = t.id_pedido
-            JOIN stock s ON t.id_produto = s.id_produto
-            JOIN usuario u ON p.id_cliente = u.id_usuario
-            WHERE s.id_fornecedor = %s
-            ORDER BY p.data_efetuado DESC
-        """, [supplier_id])
+        if tipo == "fornecedor":
+            cursor.execute("""
+                SELECT p.id_pedido, p.status, p.data_efetuado, p.id_cliente,
+                    t.id_produto, t.quantidade, u.nome as cliente_nome
+                FROM pedido p
+                JOIN tem2 t ON p.id_pedido = t.id_pedido
+                JOIN stock s ON t.id_produto = s.id_produto
+                JOIN usuario u ON p.id_cliente = u.id_usuario
+                WHERE s.id_fornecedor = %s
+                ORDER BY p.data_efetuado DESC
+            """, [supplier_id])
+        else:
+            cursor.execute("""
+                SELECT p.id_pedido, p.status, p.data_efetuado, p.id_cliente,
+                    t.id_produto, t.quantidade, u.nome as cliente_nome
+                FROM pedido p
+                JOIN tem2 t ON p.id_pedido = t.id_pedido
+                JOIN stock s ON t.id_produto = s.id_produto
+                JOIN usuario u ON p.id_cliente = u.id_usuario
+                ORDER BY p.data_efetuado DESC
+            """)
         rows = cursor.fetchall()
     
     pedidos_dict = defaultdict(list)
@@ -721,18 +795,22 @@ def supplier_pedidos(request):
 
 def supplier_promocoes(request):
     supplier_id = request.session.get("user_id")
-    if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
+    tipo = request.session.get("tipo_usuario")
+    if not supplier_id or tipo not in ["fornecedor", "admin"]:
         messages.error(request, "Acesso negado.")
         return redirect("login")
     
-    # Get supplier's product IDs
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT DISTINCT id_produto FROM stock WHERE id_fornecedor = %s
-        """, [supplier_id])
+        if tipo == "fornecedor":
+            cursor.execute("""
+                SELECT DISTINCT id_produto FROM stock WHERE id_fornecedor = %s
+            """, [supplier_id])
+        else:
+            cursor.execute("""
+                SELECT DISTINCT id_produto FROM stock
+            """)
         produto_ids = [row[0] for row in cursor.fetchall()]
     
-    # Get promotions for these products
     promocoes = produto_service.list_promocoes()
     supplier_promocoes = []
     
@@ -748,7 +826,6 @@ def supplier_promocoes(request):
             
             supplier_promocoes.append(p)
     
-    # Get product names for dropdown
     produtos = []
     for produto_id in produto_ids:
         produto = produto_service.get_produto(produto_id)
@@ -765,18 +842,22 @@ def supplier_promocoes(request):
     
 def promocao_form(request, promocao_id=None):
     supplier_id = request.session.get("user_id")
-    if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
+    tipo = request.session.get("tipo_usuario")
+    if not supplier_id or tipo not in ["fornecedor", "admin"]:
         messages.error(request, "Acesso negado.")
         return redirect("login")
     
-    # Get supplier's product IDs for the dropdown
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT DISTINCT id_produto FROM stock WHERE id_fornecedor = %s
-        """, [supplier_id])
+        if tipo == "fornecedor":
+            cursor.execute("""
+                SELECT DISTINCT id_produto FROM stock WHERE id_fornecedor = %s
+            """, [supplier_id])
+        else:
+            cursor.execute("""
+                SELECT DISTINCT id_produto FROM stock
+            """)
         produto_ids = [row[0] for row in cursor.fetchall()]
     
-    # Get product names for dropdown
     produtos = []
     for produto_id in produto_ids:
         produto = produto_service.get_produto(produto_id)
@@ -786,16 +867,14 @@ def promocao_form(request, promocao_id=None):
                 "nome": produto.get("nome", f"Produto #{produto_id}")
             })
     
-    # Handle form submission
     if request.method == "POST":
         try:
             produto_id = int(request.POST.get("produto"))
-            tipo = request.POST.get("tipo")
+            tipo_promo = request.POST.get("tipo")
             valor = float(request.POST.get("valor"))
             data_inicio = datetime.strptime(request.POST.get("data_inicio"), "%Y-%m-%d")
             data_fim = datetime.strptime(request.POST.get("data_fim"), "%Y-%m-%d")
             
-            # Validate dates
             if data_inicio >= data_fim:
                 messages.error(request, "Data de início deve ser anterior à data de fim.")
                 return render(request, "fornecedor/promocao_form.html", {
@@ -813,15 +892,16 @@ def promocao_form(request, promocao_id=None):
             
             promocao_data = {
                 "produto_id": produto_id,
-                "tipo": tipo,
+                "tipo": tipo_promo,
                 "valor": valor,
                 "data_inicio": data_inicio,
                 "data_fim": data_fim
             }
             
             if promocao_id:
-                # Update existing promotion
-                produto_service.update_promocao(promocao_id, promocao_data)
+                # Convert string ID to ObjectId for MongoDB
+                from bson.objectid import ObjectId
+                produto_service.update_promocao(ObjectId(promocao_id), promocao_data)
                 messages.success(request, "Promoção atualizada com sucesso!")
             else:
                 # Create new promotion
@@ -838,14 +918,14 @@ def promocao_form(request, promocao_id=None):
                 "promocao_id": promocao_id
             })
     
-    # Handle GET request
     form_data = {}
     if promocao_id:
-        # Editing existing promotion - load data
-        promocao = produto_service.get_promocao(promocao_id)
+        from bson.objectid import ObjectId
+        promocao = produto_service.get_promocao(ObjectId(promocao_id))
         if promocao:
+            # Ensure product ID is converted to string for template comparison
             form_data = {
-                "produto": promocao["produto_id"],
+                "produto": str(promocao["produto_id"]),  # Convert to string for template
                 "tipo": promocao["tipo"],
                 "valor": promocao["valor"],
                 "data_inicio": promocao["data_inicio"].strftime("%Y-%m-%d") if hasattr(promocao["data_inicio"], 'strftime') else promocao["data_inicio"],
@@ -860,20 +940,26 @@ def promocao_form(request, promocao_id=None):
     
 def promocao_delete(request, promocao_id):
     supplier_id = request.session.get("user_id")
-    if not supplier_id or request.session.get("tipo_usuario") != "fornecedor":
+    tipo = request.session.get("tipo_usuario")
+    if not supplier_id or tipo not in ["fornecedor", "admin"]:
         messages.error(request, "Acesso negado.")
         return redirect("login")
     
     if request.method == "POST":
         try:
-            # Verify the promotion belongs to a product from this supplier
             promocao = produto_service.get_promocao(promocao_id)
             if promocao:
                 with connection.cursor() as cursor:
-                    cursor.execute("""
-                        SELECT COUNT(*) FROM stock 
-                        WHERE id_produto = %s AND id_fornecedor = %s
-                    """, [promocao["produto_id"], supplier_id])
+                    if tipo == "fornecedor":
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM stock 
+                            WHERE id_produto = %s AND id_fornecedor = %s
+                        """, [promocao["produto_id"], supplier_id])
+                    else :
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM stock 
+                            WHERE id_produto = %s
+                        """, [promocao["produto_id"]])
                     
                     if cursor.fetchone()[0] > 0:
                         produto_service.delete_promocao(promocao_id)
@@ -888,14 +974,10 @@ def promocao_delete(request, promocao_id):
     
     return redirect("supplier_promocoes")
 
-# Admin views
-def admin_dashboard(request):
-    """Admin dashboard - only accessible by admin users"""
+def admin_home(request):
     user_id = request.session.get("user_id")
     if not user_id:
         return redirect("login")
-    
-    # Check if user is admin (you might need to add an admin flag to your user table)
     with connection.cursor() as cursor:
         cursor.execute("SELECT tipo_usuario FROM usuario WHERE id_usuario = %s", [user_id])
         user_type = cursor.fetchone()
@@ -903,23 +985,19 @@ def admin_dashboard(request):
             messages.error(request, "Acesso negado. Apenas administradores.")
             return redirect("home")
     
-    # Get statistics
     with connection.cursor() as cursor:
-        # Count users by type
         cursor.execute("SELECT tipo_usuario, COUNT(*) FROM usuario GROUP BY tipo_usuario")
         user_stats = cursor.fetchall()
         
-        # Count total orders
         cursor.execute("SELECT COUNT(*) FROM pedido")
         total_pedidos = cursor.fetchone()[0]
         
-        # Count total stock
         cursor.execute("SELECT SUM(quantidade) FROM stock")
         total_stock = cursor.fetchone()[0] or 0
     
     total_produtos = produto_service.produtos_collection.count_documents({})
     
-    return render(request, "admin/dashboard.html", {
+    return render(request, "admin/home.html", {
         "user_stats": user_stats,
         "total_pedidos": total_pedidos,
         "total_stock": total_stock,
@@ -927,7 +1005,28 @@ def admin_dashboard(request):
     })
 
 def admin_users(request):
-    """Admin view to manage all users"""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return redirect("login")
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT tipo_usuario FROM usuario WHERE id_usuario = %s", [user_id])
+        user_type = cursor.fetchone()
+        if not user_type or user_type[0] != "admin":
+            messages.error(request, "Acesso negado.")
+            return redirect("home")
+        
+        cursor.execute("""
+            SELECT id_usuario, nome, email, tipo_usuario, genero, 
+                   data_nascimento, morada, nif, tipo_entidade
+            FROM vw_utilizadores_completos
+            ORDER BY tipo_usuario, nome
+        """)
+        users = cursor.fetchall()
+    
+    return render(request, "admin/users.html", {"users": users})
+
+def admin_user_create(request):
+    """Admin view to create new users"""
     user_id = request.session.get("user_id")
     if not user_id:
         return redirect("login")
@@ -938,17 +1037,198 @@ def admin_users(request):
         if not user_type or user_type[0] != "admin":
             messages.error(request, "Acesso negado.")
             return redirect("home")
+    
+    if request.method == "POST":
+        user_form = AdminUsuarioForm(request.POST)
+        cliente_form = AdminClienteForm(request.POST)
+        fornecedor_form = AdminFornecedorForm(request.POST)
         
-        # Get all users
+        if user_form.is_valid():
+            nome = user_form.cleaned_data['nome']
+            email = user_form.cleaned_data['email']
+            password = user_form.cleaned_data['password']
+            tipo_usuario = user_form.cleaned_data['tipo_usuario']
+
+            with connection.cursor() as cursor:
+                if tipo_usuario == "cliente" and cliente_form.is_valid():
+                    genero = cliente_form.cleaned_data.get('genero')
+                    data_nascimento = cliente_form.cleaned_data.get('data_nascimento')
+                    morada = cliente_form.cleaned_data.get('morada')
+
+                    cursor.execute("""
+                        SELECT create_usuario(%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, [nome, email, password, tipo_usuario, genero, data_nascimento, morada, None])
+
+                elif tipo_usuario == "fornecedor" and fornecedor_form.is_valid():
+                    nif = fornecedor_form.cleaned_data.get('nif')
+
+                    cursor.execute("""
+                        SELECT create_usuario(%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, [nome, email, password, tipo_usuario, None, None, None, nif])
+                
+                elif tipo_usuario == "admin":
+                    cursor.execute("""
+                        SELECT create_usuario(%s, %s, %s, %s, %s, %s, %s, %s)
+                    """, [nome, email, password, tipo_usuario, None, None, None, None])
+
+            messages.success(request, "Usuário criado com sucesso!")
+            return redirect("admin_users")
+    else:
+        user_form = AdminUsuarioForm()
+        cliente_form = AdminClienteForm()
+        fornecedor_form = AdminFornecedorForm()
+
+    return render(request, "admin/user.html", {
+        'is_edit': False,
+        'user_form': user_form,
+        'cliente_form': cliente_form,
+        'fornecedor_form': fornecedor_form
+    })
+
+def admin_user_edit(request, user_id):
+    
+    current_user_id = request.session.get("user_id")
+    if not current_user_id:
+        return redirect("login")
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT tipo_usuario FROM usuario WHERE id_usuario = %s", [current_user_id])
+        user_type = cursor.fetchone()
+        if not user_type or user_type[0] != "admin":
+            messages.error(request, "Acesso negado.")
+            return redirect("home")
+        
         cursor.execute("""
-            SELECT u.id_usuario, u.nome, u.email, u.tipo_usuario,
+            SELECT u.nome, u.email, u.tipo_usuario,
                    c.genero, c.data_nascimento, c.morada,
                    f.nif
             FROM usuario u
             LEFT JOIN cliente c ON u.id_usuario = c.id_cliente
             LEFT JOIN fornecedor f ON u.id_usuario = f.id_fornecedor
-            ORDER BY u.tipo_usuario, u.nome
-        """)
-        users = cursor.fetchall()
+            WHERE u.id_usuario = %s
+        """, [user_id])
+        
+        user_data = cursor.fetchone()
+        if not user_data:
+            messages.error(request, "Usuário não encontrado.")
+            return redirect("admin_users")
+
+    if request.method == "POST":
+        user_form = AdminUsuarioForm(request.POST)
+        cliente_form = AdminClienteForm(request.POST)
+        fornecedor_form = AdminFornecedorForm(request.POST)
+        
+        if user_form.is_valid():
+            nome = user_form.cleaned_data['nome']
+            email = user_form.cleaned_data['email']
+            password = user_form.cleaned_data.get('password')
+            
+            with connection.cursor() as cursor:
+                if password:  # Update password if provided
+                    cursor.execute("""
+                        UPDATE usuario 
+                        SET nome = %s, email = %s, password = %s 
+                        WHERE id_usuario = %s
+                    """, [nome, email, password, user_id])
+                else:  # Keep existing password
+                    cursor.execute("""
+                        UPDATE usuario 
+                        SET nome = %s, email = %s 
+                        WHERE id_usuario = %s
+                    """, [nome, email, user_id])
+                
+                # Update type-specific data
+                tipo_usuario = user_data[2]  # existing type
+                if tipo_usuario == "cliente" and cliente_form.is_valid():
+                    genero = cliente_form.cleaned_data.get('genero')
+                    data_nascimento = cliente_form.cleaned_data.get('data_nascimento')
+                    morada = cliente_form.cleaned_data.get('morada')
+                    
+                    cursor.execute("""
+                        UPDATE cliente 
+                        SET genero = %s, data_nascimento = %s, morada = %s 
+                        WHERE id_cliente = %s
+                    """, [genero, data_nascimento, morada, user_id])
+                    
+                elif tipo_usuario == "fornecedor" and fornecedor_form.is_valid():
+                    nif = fornecedor_form.cleaned_data.get('nif')
+                    cursor.execute("""
+                        UPDATE fornecedor 
+                        SET nif = %s 
+                        WHERE id_fornecedor = %s
+                    """, [nif, user_id])
+
+            messages.success(request, "Usuário atualizado com sucesso!")
+            return redirect("admin_users")
+    else:
+        # Pre-populate forms with existing data
+        user_form = AdminUsuarioForm(initial={
+            'nome': user_data[0],
+            'email': user_data[1],
+            'tipo_usuario': user_data[2]
+        })
+        cliente_form = AdminClienteForm(initial={
+            'genero': user_data[3],
+            'data_nascimento': user_data[4],
+            'morada': user_data[5]
+        })
+        fornecedor_form = AdminFornecedorForm(initial={
+            'nif': user_data[6]
+        })
+
+    return render(request, "admin/user.html", {
+        'is_edit': True,
+        'user_form': user_form,
+        'cliente_form': cliente_form,
+        'fornecedor_form': fornecedor_form,
+        'user': {
+            'id_usuario': user_id,
+            'tipo_usuario': user_data[2]
+        }
+    })
     
-    return render(request, "admin/users.html", {"users": users})
+def admin_user_delete(request, user_id):
+    current_user_id = request.session.get("user_id")
+    if not current_user_id:
+        return redirect("login")
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT tipo_usuario FROM usuario WHERE id_usuario = %s", [current_user_id])
+        user_type = cursor.fetchone()
+        if not user_type or user_type[0] != "admin":
+            messages.error(request, "Acesso negado. Apenas administradores.")
+            return redirect("home")
+        
+        # Prevent admin from deleting themselves
+        if int(current_user_id) == int(user_id):
+            messages.error(request, "Não pode eliminar a sua própria conta.")
+            return redirect("admin_users")
+        
+        # Get user data
+        cursor.execute("""
+            SELECT nome, email FROM usuario WHERE id_usuario = %s
+        """, [user_id])
+        user_data = cursor.fetchone()
+        
+        if not user_data:
+            messages.error(request, "Utilizador não encontrado.")
+            return redirect("admin_users")
+
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                # Delete user (cascade should handle related records)
+                cursor.execute("DELETE FROM usuario WHERE id_usuario = %s", [user_id])
+            
+            messages.success(request, "Utilizador removido com sucesso!")
+        except Exception as e:
+            messages.error(request, f"Erro ao remover utilizador: {str(e)}")
+        
+        return redirect("admin_users")
+
+    return render(request, "admin/user_confirm_delete.html", {
+        'user': {
+            'nome': user_data[0],
+            'email': user_data[1]
+        }
+    })

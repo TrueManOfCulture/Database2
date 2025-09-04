@@ -1,121 +1,166 @@
-{% extends "base.html" %}
-
+{% extends "base.html" %} 
 {% block title %}Meus Produtos - TechMart{% endblock %}
-{% block header_title %}Gestão de Produtos{% endblock %}
+{% block header_title %}Gestão de Produtos{% endblock %} 
 
 {% block extra_css %}
-  .supplier-content {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
-  }
-  .page-title {
-    text-align: center;
-    color: #1d3557;
-    margin-bottom: 30px;
-    font-size: 2.2em;
-  }
+.supplier-content {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.page-title {
+  text-align: center;
+  color: #1d3557;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.btn-add-product {
+  background: #27ae60;
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add-product:hover {
+  background: #219a52;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 15px;
+}
+
+.product-title {
+  color: #1d3557;
+  margin: 0;
+  font-size: 1.3em;
+}
+
+.stock-info {
+  text-align: right;
+  font-size: 0.9em;
+}
+
+.stock-good {
+  color: #27ae60;
+}
+
+.stock-low {
+  color: #e67e22;
+}
+
+.stock-out {
+  color: #e74c3c;
+}
+
+.product-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.btn-view {
+  background: #457b9d;
+  color: white;
+}
+
+.btn-edit {
+  background: #3498db;
+  color: white;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-view:hover {
+  background: #1d3557;
+}
+
+.btn-edit:hover {
+  background: #2980b9;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 50px;
+  padding: 40px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.empty-state h3 {
+  color: #1d3557;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
   .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  .btn-add-product {
-    background: #27ae60;
-    color: white;
-    padding: 12px 20px;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-  }
-  .btn-add-product:hover {
-    background: #219a52;
-  }
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-  .product-card {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-  }
-  .product-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 15px;
-  }
-  .product-title {
-    color: #1d3557;
-    margin: 0;
-    font-size: 1.3em;
-  }
-  .stock-info {
-    text-align: right;
-    font-size: 0.9em;
-  }
-  .stock-good { color: #27ae60; }
-  .stock-low { color: #e67e22; }
-  .stock-out { color: #e74c3c; }
-  .product-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .btn-small {
-    padding: 8px 12px;
-    font-size: 0.9em;
-    text-decoration: none;
-    border-radius: 4px;
-    display: inline-block;
-    transition: background-color 0.3s ease;
-  }
-  .btn-view { background: #457b9d; color: white; }
-  .btn-edit { background: #3498db; color: white; }
-  .btn-delete { background: #e74c3c; color: white; }
-  .btn-view:hover { background: #1d3557; }
-  .btn-edit:hover { background: #2980b9; }
-  .btn-delete:hover { background: #c0392b; }
-  .empty-state {
+    flex-direction: column;
+    gap: 15px;
     text-align: center;
-    margin-top: 50px;
-    padding: 40px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  .empty-state h3 {
-    color: #1d3557;
-    margin-bottom: 15px;
-  }
-  .empty-state p {
-    color: #666;
-    margin-bottom: 25px;
   }
   
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .page-header {
-      flex-direction: column;
-      gap: 15px;
-      text-align: center;
-    }
-    .page-title {
-      font-size: 1.8em;
-    }
+  .page-title {
+    font-size: 1.8em;
   }
+}
 {% endblock %}
 
 {% block content %}
@@ -124,53 +169,53 @@
     <h1 class="page-title">Meus Produtos</h1>
     <a href="{% url 'produto_create' %}" class="btn-add-product">+ Adicionar Produto</a>
   </div>
-  
+
   {% if produtos %}
-    <div class="product-grid">
-      {% for produto in produtos %}
-      <div class="product-card">
-        <div class="product-header">
-          <h3 class="product-title">{{ produto.nome }}</h3>
-          <div class="stock-info">
-            <div class="{% if produto.stock_quantidade > 10 %}stock-good{% elif produto.stock_quantidade > 0 %}stock-low{% else %}stock-out{% endif %}">
-              Stock: {{ produto.stock_quantidade }}
-            </div>
-            <div style="font-size: 0.8em; color: #666;">
-              Atualizado: {{ produto.stock_update|date:"d/m/Y" }}
-            </div>
+  <div class="product-grid">
+    {% for produto in produtos %}
+    <div class="product-card">
+      <div class="product-header">
+        <h3 class="product-title">{{ produto.nome }}</h3>
+        <div class="stock-info">
+          <div class="{% if produto.stock_quantidade > 10 %}stock-good{% elif produto.stock_quantidade > 0 %}stock-low{% else %}stock-out{% endif %}">
+            Stock: {{ produto.stock_quantidade }}
           </div>
-        </div>
-        
-        <p class="descricao">{{ produto.descricao|truncatewords:20 }}</p>
-        
-        <div style="margin: 10px 0;">
-          <strong>Preço: €{{ produto.preco }}</strong>
-        </div>
-        
-        <div style="margin: 10px 0;">
-          <strong>Categoria:</strong> {{ produto.categoria|default:"N/A" }}
-        </div>
-        
-        {% if produto.media_avaliacao %}
-          <div style="margin: 10px 0; color: #f4c150;">
-            ⭐ {{ produto.media_avaliacao|floatformat:1 }} ({{ produto.total_avaliacoes }} avaliações)
+          <div class="stock-update-date">
+            Atualizado: {{ produto.stock_update|date:"d/m/Y" }}
           </div>
-        {% endif %}
-        
-        <div class="product-actions">
-          <a href="{% url 'produto_detail' produto.id %}" class="btn-small btn-view">Ver Produto</a>
-          <a href="{% url 'produto_update' produto.id %}" class="btn-small btn-edit">Editar</a>
-          <a href="{% url 'produto_delete' produto.id %}" class="btn-small btn-delete">Remover</a>
         </div>
       </div>
-      {% endfor %}
+
+      <p class="descricao">{{ produto.descricao|truncatewords:20 }}</p>
+
+      <div class="price">
+        <strong>Preço: €{{ produto.preco }}</strong>
+      </div>
+
+      <div class="category">
+        <strong>Categoria:</strong> {{ produto.categoria|default:"N/A" }}
+      </div>
+
+      {% if produto.media_avaliacao %}
+      <div class="rating">
+        ⭐ {{ produto.media_avaliacao|floatformat:1 }} ({{ produto.total_avaliacoes }} avaliações)
+      </div>
+      {% endif %}
+
+      <div class="product-actions">
+        <a href="{% url 'produto_detail' produto.id %}" class="btn-small btn-view">Ver Produto</a>
+        <a href="{% url 'produto_update' produto.id %}" class="btn-small btn-edit">Editar</a>
+        <a href="{% url 'produto_delete' produto.id %}" class="btn-small btn-delete">Remover</a>
+      </div>
     </div>
+    {% endfor %}
+  </div>
   {% else %}
-    <div class="empty-state">
-      <h3>Ainda não tem produtos</h3>
-      <p>Comece por adicionar produtos ao seu stock para aparecerem aqui.</p>
-      <a href="{% url 'produto_create' %}" class="btn">Adicionar Primeiro Produto</a>
-    </div>
+  <div class="empty-state">
+    <h3>Ainda não tem produtos</h3>
+    <p>Comece por adicionar produtos ao seu stock para aparecerem aqui.</p>
+    <a href="{% url 'produto_create' %}" class="btn">Adicionar Primeiro Produto</a>
+  </div>
   {% endif %}
 </div>
 {% endblock %}

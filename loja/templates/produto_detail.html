@@ -1,228 +1,320 @@
 {% extends "base.html" %}
-
 {% block title %}{{ produto.nome }} - TechMart{% endblock %}
 {% block header_title %}Detalhes do Produto{% endblock %}
 
 {% block extra_css %}
-  /* Add product detail specific styles */
-  .product-detail {
-      max-width: 1000px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+<style>
+/* Product detail specific styles */
+.product-detail {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.product-info {
+    flex: 2;
+}
+
+.product-image {
+    flex: 1;
+    text-align: center;
+}
+
+.product-image img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+.product-meta {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.product-meta p {
+    margin: 8px 0;
+    color: #495057;
+}
+
+.price-section {
+    font-size: 1.5em;
+    margin: 15px 0;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #888;
+    margin-right: 10px;
+}
+
+.promotional-price {
+    color: #e63946;
+    font-weight: bold;
+}
+
+.promo-badge {
+    background: #e63946;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.rating-big {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.reviews-section {
+    margin-top: 30px;
+}
+
+.review-card {
+    border: 1px solid #eee;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.review-rating {
+    color: #f4c150;
+}
+
+.add-review {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+    margin: 10px 0;
+}
+
+.star-rating input[type=radio] {
+    display: none;
+}
+
+.star-rating label {
+    color: #bbb;
+    font-size: 1.5em;
+    padding: 0 2px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star-rating input[type=radio]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #f4c150;
+}
+
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.placeholder-image {
+    width: 300px;
+    height: 300px;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .product-header {
+        flex-direction: column;
     }
-  .product-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-  .product-info { flex: 2; padding-right: 20px; }
-  .product-image { flex: 1; text-align: center; }
-  .product-image img {
-      max-width: 100%;
-      border-radius: 10px;
+    
+    .product-info {
+        order: 2;
     }
-  .product-meta {
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      margin: 15px 0;
+    
+    .product-image {
+        order: 1;
+        margin-bottom: 20px;
     }
-  .product-meta p {
-      margin: 8px 0;
-      color: #495057;
-    }
-  .price-section { font-size: 1.5em; margin: 15px 0; }
-   .original-price {
-      text-decoration: line-through;
-      color: #888;
-      margin-right: 10px;
-    }
-    .promotional-price {
-      color: #e63946;
-      font-weight: bold;
-    }
-    .promo-badge {
-      background: #e63946;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 0.8em;
-      display: inline-block;
-      margin-left: 10px;
-    }
-    .rating-big {
-      font-size: 1.2em;
-      margin: 10px 0;
-    }
-    .reviews-section {
-      margin-top: 30px;
-    }
-    .review-card {
-      border: 1px solid #eee;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 5px;
-    }
-    .review-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .review-rating {
-      color: #f4c150;
-    }
-    .add-review {
-      margin-top: 30px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 10px;
-    }
-    .star-rating {
-      direction: rtl;
-      display: inline-block;
-    }
-    .star-rating input[type=radio] {
-      display: none;
-    }
-    .star-rating label {
-      color: #bbb;
-      font-size: 1.5em;
-      padding: 0;
-      cursor: pointer;
-    }
-    .star-rating input[type=radio]:checked ~ label {
-      color: #f4c150;
-    }
-    .star-rating label:hover,
-    .star-rating label:hover ~ label {
-      color: #f4c150;
-    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="product-detail">
+<div class="product-detail">
     <div class="product-header">
-      <div class="product-info">
-        <h1>{{ produto.nome }}</h1>
-        <p class="descricao">{{ produto.descricao }}</p>
-        
-        <!-- Additional product info -->
-        <div class="product-meta">
-          {% if produto.marca %}
-            <p><strong>Marca:</strong> {{ produto.marca }}</p>
-          {% endif %}
-          {% if produto.categoria %}
-            <p><strong>Categoria:</strong> {{ produto.categoria }}</p>
-          {% endif %}
-          {% if produto.condicao %}
-            <p><strong>Condição:</strong> {{ produto.condicao|capfirst }}</p>
-          {% endif %}
-          {% if produto.detalhes_condicao %}
-            <p><strong>Detalhes da Condição:</strong> {{ produto.detalhes_condicao }}</p>
-          {% endif %}
-          {% if produto.fornecedor_nome %}
-            <p><strong>Fornecedor:</strong> {{ produto.fornecedor_nome }}</p>
-          {% endif %}
-        </div>
-        
-        <div class="price-section">
-          {% if produto.preco_promocional %}
-            <span class="original-price">€ {{ produto.preco }}</span>
-            <span class="promotional-price">€ {{ produto.preco_promocional }}</span>
-            <span class="promo-badge">Promoção!</span>
-          {% else %}
-            <span>€ {{ produto.preco }}</span>
-          {% endif %}
-        </div>
-        
-        <div class="rating-big">
-          {% if produto.media_avaliacao %}
-            {% with ''|center:5 as range %}
-              {% for i in range %}
-                {% if forloop.counter <= produto.media_avaliacao|floatformat:0 %}
-                  ★
-                {% else %}
-                  ☆
+        <div class="product-info">
+            <h1>{{ produto.nome }}</h1>
+            <p class="descricao">{{ produto.descricao }}</p>
+
+            <!-- Additional product info -->
+            <div class="product-meta">
+                {% if produto.marca %}
+                <p><strong>Marca:</strong> {{ produto.marca }}</p>
                 {% endif %}
-              {% endfor %}
-            {% endwith %}
-            {{ produto.media_avaliacao|floatformat:1 }} ({{ produto.total_avaliacoes }} avaliações)
-          {% else %}
-            <p>Sem avaliações</p>
-          {% endif %}
+                
+                {% if produto.categoria %}
+                <p><strong>Categoria:</strong> {{ produto.categoria }}</p>
+                {% endif %}
+                
+                {% if produto.condicao %}
+                <p><strong>Condição:</strong> {{ produto.condicao|capfirst }}</p>
+                {% endif %}
+                
+                {% if produto.detalhes_condicao %}
+                <p><strong>Detalhes da Condição:</strong> {{ produto.detalhes_condicao }}</p>
+                {% endif %}
+                
+                {% if produto.fornecedor_nome %}
+                <p><strong>Fornecedor:</strong> {{ produto.fornecedor_nome }}</p>
+                {% endif %}
+            </div>
+
+            <div class="price-section">
+                {% if produto.preco_promocional %}
+                <span class="original-price">€ {{ produto.preco }}</span>
+                <span class="promotional-price">€ {{ produto.preco_promocional }}</span>
+                <span class="promo-badge">Promoção!</span>
+                {% else %}
+                <span>€ {{ produto.preco }}</span>
+                {% endif %}
+            </div>
+
+            <div class="rating-big">
+                {% if produto.media_avaliacao %}
+                    {% with ''|center:5 as range %}
+                        {% for i in range %}
+                            {% if forloop.counter <= produto.media_avaliacao|floatformat:0 %}
+                                ★
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                    {{ produto.media_avaliacao|floatformat:1 }} ({{ produto.total_avaliacoes }} avaliações)
+                {% else %}
+                    <p>Sem avaliações</p>
+                {% endif %}
+            </div>
+
+            <!-- Add to cart button -->
+            {% if request.session.user_id and request.session.tipo_usuario == 'cliente' %}
+                <a href="{% url 'add_produto' produto.id %}" class="btn">Adicionar ao Carrinho</a>
+            {% elif not request.session.user_id %}
+                <a href="{% url 'login' %}" class="btn">Login para Comprar</a>
+            {% endif %}
         </div>
-        
-        <!-- Add to cart button -->
-        {% if request.session.user_id and request.session.tipo_usuario == 'cliente' %}
-          <a href="{% url 'add_produto' produto.id %}" class="btn">Adicionar ao Carrinho</a>
-        {% elif not request.session.user_id %}
-          <a href="{% url 'login' %}" class="btn">Login para Comprar</a>
-        {% endif %}
-      </div>
-      
-      <div class="product-image">
-        <!-- Placeholder for product image -->
-        <div style="width: 300px; height: 300px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
-          <span>Imagem do Produto</span>
+
+        <div class="product-image">
+            <!-- Placeholder for product image -->
+            <div class="placeholder-image">
+                <span>Imagem do Produto</span>
+            </div>
         </div>
-      </div>
     </div>
-    
+
     <!-- Reviews section -->
     <div class="reviews-section">
-      <h2>Avaliações</h2>
-      
-      {% if avaliacoes %}
-        {% for avaliacao in avaliacoes %}
-        <div class="review-card">
-          <div class="review-header">
-            <strong>{{ avaliacao.usuario_nome }}</strong>
-            <div class="review-rating">
-              {% with ''|center:5 as range %}
-                {% for i in range %}
-                  {% if forloop.counter <= avaliacao.nota %}
-                    ★
-                  {% else %}
-                    ☆
-                  {% endif %}
-                {% endfor %}
-              {% endwith %}
+        <h2>Avaliações</h2>
+
+        {% if avaliacoes %}
+            {% for avaliacao in avaliacoes %}
+            <div class="review-card">
+                <div class="review-header">
+                    <strong>{{ avaliacao.usuario_nome }}</strong>
+                    <div class="review-rating">
+                        {% with ''|center:5 as range %}
+                            {% for i in range %}
+                                {% if forloop.counter <= avaliacao.nota %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+                <p>{{ avaliacao.comentario }}</p>
+                <small>{{ avaliacao.data|date:"d/m/Y" }}</small>
             </div>
-          </div>
-          <p>{{ avaliacao.comentario }}</p>
-          <small>{{ avaliacao.data|date:"d/m/Y" }}</small>
+            {% endfor %}
+        {% else %}
+            <p>Este produto ainda não tem avaliações.</p>
+        {% endif %}
+
+        <!-- Add review form -->
+        {% if request.session.user_id and request.session.tipo_usuario == 'cliente' %}
+        <div class="add-review">
+            <h3>Deixe a sua avaliação</h3>
+            <form method="post" action="{% url 'submit_avaliacao' produto.id %}">
+                {% csrf_token %}
+                <div class="star-rating">
+                    <input type="radio" id="5-stars" name="nota" value="5" required />
+                    <label for="5-stars">☆</label>
+                    <input type="radio" id="4-stars" name="nota" value="4" />
+                    <label for="4-stars">☆</label>
+                    <input type="radio" id="3-stars" name="nota" value="3" />
+                    <label for="3-stars">☆</label>
+                    <input type="radio" id="2-stars" name="nota" value="2" />
+                    <label for="2-stars">☆</label>
+                    <input type="radio" id="1-star" name="nota" value="1" />
+                    <label for="1-star">☆</label>
+                </div>
+                <div style="margin: 15px 0">
+                    <textarea
+                        name="comentario"
+                        placeholder="Opcional: deixe um comentário sobre o produto"
+                        style="
+                            width: 100%;
+                            padding: 10px;
+                            border-radius: 5px;
+                            border: 1px solid #ccc;
+                            min-height: 100px;
+                            box-sizing: border-box;
+                        "
+                    ></textarea>
+                </div>
+                <button type="submit" class="btn">Submeter Avaliação</button>
+            </form>
         </div>
-        {% endfor %}
-      {% else %}
-        <p>Este produto ainda não tem avaliações.</p>
-      {% endif %}
-      
-      <!-- Add review form -->
-      {% if request.session.user_id and request.session.tipo_usuario == 'cliente' %}
-      <div class="add-review">
-        <h3>Deixe a sua avaliação</h3>
-        <form method="post" action="{% url 'submit_avaliacao' produto.id %}">
-          {% csrf_token %}
-          <div class="star-rating">
-            <input type="radio" id="5-stars" name="nota" value="5" required/>
-            <label for="5-stars">☆</label>
-            <input type="radio" id="4-stars" name="nota" value="4"/>
-            <label for="4-stars">☆</label>
-            <input type="radio" id="3-stars" name="nota" value="3"/>
-            <label for="3-stars">☆</label>
-            <input type="radio" id="2-stars" name="nota" value="2"/>
-            <label for="2-stars">☆</label>
-            <input type="radio" id="1-star" name="nota" value="1"/>
-            <label for="1-star">☆</label>
-          </div>
-          <div style="margin: 15px 0;">
-            <textarea name="comentario" placeholder="Opcional: deixe um comentário sobre o produto" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; min-height: 100px;"></textarea>
-          </div>
-          <button type="submit" class="btn">Submeter Avaliação</button>
-        </form>
-      </div>
-      {% elif not request.session.user_id %}
+        {% elif not request.session.user_id %}
         <p><a href="{% url 'login' %}">Faça login</a> para deixar uma avaliação.</p>
-      {% endif %}
+        {% endif %}
     </div>
-  </div>
+</div>
 {% endblock %}

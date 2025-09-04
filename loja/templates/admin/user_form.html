@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Edit User{% else %}Create User{% endif %} - TechMart Admin{% endblock %}
+{% block header_title %}{% if is_edit %}Edit User{% else %}Create User{% endif %}{% endblock %}
+
+{% block content %}
+<div class="user-form">
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      <h3>User Information</h3>
+      <div class="form-group">
+        <label for="nome">Name:</label>
+        <input type="text" class="form-control" id="nome" name="nome" 
+               value="{% if is_edit %}{{ user.nome }}{% endif %}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" 
+               value="{% if is_edit %}{{ user.email }}{% endif %}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" class="form-control" id="password" name="password" 
+               {% if not is_edit %}required{% endif %}>
+        {% if is_edit %}
+        <small class="form-text">Leave blank to keep current password.</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="tipo_usuario">User Type:</label>
+        <select class="form-control" id="tipo_usuario" name="tipo_usuario" required 
+                {% if is_edit %}disabled{% endif %}>
+          <option value="">Select type...</option>
+          <option value="cliente" {% if is_edit and user.tipo_usuario == 'cliente' %}selected{% endif %}>Cliente</option>
+          <option value="fornecedor" {% if is_edit and user.tipo_usuario == 'fornecedor' %}selected{% endif %}>Fornecedor</option>
+          <option value="admin" {% if is_edit and user.tipo_usuario == 'admin' %}selected{% endif %}>Admin</option>
+        </select>
+      </div>
+
+      <!-- Client-specific fields -->
+      <div id="cliente-fields" style="display: none;">
+        <h3>Client Details</h3>
+
+        <div class="form-group">
+          <label for="genero">Gender:</label>
+          <select class="form-control" id="genero" name="genero">
+            <option value="">Select...</option>
+            <option value="M" {% if is_edit and user.genero == 'M' %}selected{% endif %}>Male</option>
+            <option value="F" {% if is_edit and user.genero == 'F' %}selected{% endif %}>Female</option>
+            <option value="O" {% if is_edit and user.genero == 'O' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="data_nascimento">Birth Date:</label>
+          <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
+                 value="{% if is_edit and user.data_nascimento %}{{ user.data_nascimento|date:'Y-m-d' }}{% endif %}">
+        </div>
+
+        <div class="form-group">
+          <label for="morada">Address:</label>
+          <textarea class="form-control" id="morada" name="morada" rows="3">{% if is_edit %}{{ user.morada }}{% endif %}</textarea>
+        </div>
+      </div>
+
+      <!-- Supplier-specific fields -->
+      <div id="fornecedor-fields" style="display: none;">
+        <h3>Supplier Details</h3>
+
+        <div class="form-group">
+          <label for="nif">NIF:</label>
+          <input type="text" class="form-control" id="nif" name="nif"
+                 value="{% if is_edit %}{{ user.nif }}{% endif %}">
+        </div>
+      </div>
+
+      <button type="submit" class="btn">
+        {% if is_edit %}Update User{% else %}Create User{% endif %}
+      </button>
+      <a href="{% url 'admin_users' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const userTypeSelect = document.getElementById("tipo_usuario");
+    const clienteFields = document.getElementById("cliente-fields");
+    const fornecedorFields = document.getElementById("fornecedor-fields");
+
+    function toggleFields() {
+      const selectedType = userTypeSelect.value;
+
+      clienteFields.style.display = "none";
+      fornecedorFields.style.display = "none";
+
+      if (selectedType === "cliente") {
+        clienteFields.style.display = "block";
+      } else if (selectedType === "fornecedor") {
+        fornecedorFields.style.display = "block";
+      }
+    }
+
+    toggleFields();
+
+    {% if not is_edit %}
+    userTypeSelect.addEventListener("change", toggleFields);
+    {% endif %}
+  });
+</script>
+{% endblock %}

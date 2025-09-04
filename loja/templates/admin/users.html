@@ -1,0 +1,56 @@
+<!-- templates/admin/users.html -->
+{% extends "base.html" %}
+{% block title %}User Management - TechMart Admin{% endblock %}
+{% block header_title %}User Management{% endblock %}
+{% block content %}
+
+<div class="admin-users">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>All Users ({{ users|length }} found)</h2>
+    <a href="{% url 'admin_user_create' %}" class="btn">Create New User</a>
+  </div>
+
+  <div class="card">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #f8f9fa;">
+          <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1d3557;">ID</th>
+          <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1d3557;">Name</th>
+          <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1d3557;">Email</th>
+          <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1d3557;">Type</th>
+          <th style="padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #1d3557;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0;">{{ user.0 }}</td>
+          <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0;">{{ user.1 }}</td>
+          <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0;">{{ user.2 }}</td>
+          <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0;">
+            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; 
+                         {% if user.3 == 'cliente' %}background-color: #e9f5db; color: #2d5a27;
+                         {% elif user.3 == 'fornecedor' %}background-color: #e0f7fa; color: #006064;
+                         {% elif user.3 == 'admin' %}background-color: #fce4ec; color: #880e4f;
+                         {% endif %}">
+              {{ user.3 }}
+            </span>
+          </td>
+          <td style="padding: 12px 15px; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; gap: 8px;">
+              <a href="{% url 'admin_user_edit' user.0 %}" class="btn" style="padding: 6px 12px; font-size: 0.85em;">Edit</a>
+              <a href="{% url 'admin_user_delete' user.0 %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85em;">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="text-align: center; padding: 20px; color: #666;">No users found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

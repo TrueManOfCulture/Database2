@@ -1,0 +1,115 @@
+{% extends "base.html" %} 
+
+{% block title %}
+  {% if is_edit %}Edit User{% else %}Create User{% endif %} - TechMart Admin
+{% endblock %} 
+
+{% block header_title %}
+  {% if is_edit %}Edit User{% else %}Create User{% endif %}
+{% endblock %} 
+
+{% block content %}
+<div class="user-form">
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+
+      <h3>User Information</h3>
+      <div class="form-group">
+        {{ user_form.nome.label_tag }} 
+        {{ user_form.nome }} 
+        {{ user_form.nome.errors }}
+      </div>
+
+      <div class="form-group">
+        {{ user_form.email.label_tag }} 
+        {{ user_form.email }} 
+        {{ user_form.email.errors }}
+      </div>
+
+      <div class="form-group">
+        {{ user_form.password.label_tag }} 
+        {{ user_form.password }} 
+        {{ user_form.password.errors }} 
+        {% if is_edit %}
+        <small class="form-text">Leave blank to keep current password.</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        {{ user_form.tipo_usuario.label_tag }} 
+        {{ user_form.tipo_usuario }} 
+        {{ user_form.tipo_usuario.errors }}
+      </div>
+
+      <!-- Client-specific fields -->
+      <div id="cliente-fields" style="display: none">
+        <h3>Client Details</h3>
+
+        <div class="form-group">
+          {{ cliente_form.genero.label_tag }} 
+          {{ cliente_form.genero }} 
+          {{ cliente_form.genero.errors }}
+        </div>
+
+        <div class="form-group">
+          {{ cliente_form.data_nascimento.label_tag }} 
+          {{ cliente_form.data_nascimento }} 
+          {{ cliente_form.data_nascimento.errors }}
+        </div>
+
+        <div class="form-group">
+          {{ cliente_form.morada.label_tag }} 
+          {{ cliente_form.morada }} 
+          {{ cliente_form.morada.errors }}
+        </div>
+      </div>
+
+      <!-- Supplier-specific fields -->
+      <div id="fornecedor-fields" style="display: none">
+        <h3>Supplier Details</h3>
+
+        <div class="form-group">
+          {{ fornecedor_form.nif.label_tag }} 
+          {{ fornecedor_form.nif }} 
+          {{ fornecedor_form.nif.errors }}
+        </div>
+      </div>
+
+      <button type="submit" class="btn">
+        {% if is_edit %}Update User{% else %}Create User{% endif %}
+      </button>
+      <a href="{% url 'admin_users' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const userTypeSelect = document.getElementById("id_tipo_usuario");
+    const clienteFields = document.getElementById("cliente-fields");
+    const fornecedorFields = document.getElementById("fornecedor-fields");
+
+    function toggleFields() {
+      const selectedType = userTypeSelect.value;
+
+      // Hide all fields first
+      clienteFields.style.display = "none";
+      fornecedorFields.style.display = "none";
+
+      // Show fields based on selected type
+      if (selectedType === "cliente") {
+        clienteFields.style.display = "block";
+      } else if (selectedType === "fornecedor") {
+        fornecedorFields.style.display = "block";
+      }
+    }
+
+    // Initial toggle based on current value (important for edit mode)
+    toggleFields();
+
+    // Add event listener for changes
+    userTypeSelect.addEventListener("change", toggleFields);
+  });
+</script>
+{% endblock %}

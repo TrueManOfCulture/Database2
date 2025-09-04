@@ -19,7 +19,7 @@ class UsuarioForm(forms.ModelForm):
 class PedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
-        fields = ['data_concluido']  # Remove 'status' from editable fields
+        fields = ['data_concluido']
         widgets = {
             'data_concluido': forms.DateInput(attrs={'type': 'date'}),
         }
@@ -36,7 +36,7 @@ class PedidoProdutoForm(forms.Form):
     )
     quantidade = forms.IntegerField(
         min_value=0,
-        required=False,  # Make this not required to avoid validation errors
+        required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0'})
     )
     remover = forms.BooleanField(required=False, widget=forms.CheckboxInput())
@@ -55,11 +55,9 @@ class PedidoProdutoForm(forms.Form):
         quantidade = cleaned_data.get('quantidade')
         remover = cleaned_data.get('remover', False)
         
-        # If removing, quantity doesn't matter
         if remover:
             return cleaned_data
             
-        # If not removing, quantity must be positive
         if quantidade is not None and quantidade <= 0:
             raise forms.ValidationError("Quantidade deve ser maior que 0.")
             
@@ -81,7 +79,7 @@ class NovoProdutoForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Get available products with stock
+        
         try:
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -91,7 +89,6 @@ class NovoProdutoForm(forms.Form):
                 """)
                 produtos_com_stock = [row[0] for row in cursor.fetchall()]
             
-            # Get product names from MongoDB
             choices = [('', 'Selecione um produto')]
             for produto_id in produtos_com_stock:
                 try:
@@ -105,7 +102,6 @@ class NovoProdutoForm(forms.Form):
         except:
             self.fields['id_produto'].choices = [('', 'Nenhum produto disponível')]
 
-# Create formset for managing multiple products in an order
 PedidoProdutoFormSet = formset_factory(
     PedidoProdutoForm, 
     extra=0, 
@@ -142,7 +138,7 @@ class StockForm(forms.ModelForm):
             self.fields['id_produto'].choices = [('', 'Nenhum produto disponível')]
 
 class SupplierProdutoStockForm(forms.Form):
-    # Product fields
+    
     nome = forms.CharField(
         max_length=255, 
         label='Nome do Produto',
@@ -206,3 +202,38 @@ class SupplierProdutoStockForm(forms.Form):
             self.fields['categoria'].choices = choices
         except:
             self.fields['categoria'].choices = [('', 'Nenhuma categoria disponível')]
+            
+class AdminUsuarioForm(forms.Form):
+    nome = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(
+        max_length=100, 
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+    tipo_usuario = forms.ChoiceField(
+        choices=[('', 'Select type...'), ('cliente', 'Cliente'), ('fornecedor', 'Fornecedor'), ('admin', 'Admin')],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+class AdminClienteForm(forms.Form):
+    genero = forms.ChoiceField(
+        choices=[('', 'Select...'), ('M', 'Male'), ('F', 'Female'), ('O', 'Other')],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    data_nascimento = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+    )
+    morada = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+    )
+
+class AdminFornecedorForm(forms.Form):
+    nif = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )

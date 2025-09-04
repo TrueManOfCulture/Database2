@@ -102,7 +102,6 @@ class ProdutoService:
         promocao = self.promocoes_collection.find_one({"_id": ObjectId(promocao_id)})
         if promocao:
             promocao["id"] = str(promocao["_id"])
-            # Add product info
             produto = self.produtos_collection.find_one({"_id": promocao["produto_id"]})
             if produto:
                 promocao["produto"] = produto
@@ -149,7 +148,6 @@ class ProdutoService:
     def list_avaliacoes(self, produto_id=None, usuario_id=None):
         query = {}
         if produto_id:
-            # Handle both string and integer product IDs
             if isinstance(produto_id, str) and produto_id.isdigit():
                 query["produto_id"] = int(produto_id)
             else:
@@ -176,7 +174,6 @@ class ProdutoService:
         if avaliacao:
             avaliacao["id"] = str(avaliacao["_id"])
             
-            # Add product info
             produto = self.produtos_collection.find_one({"_id": avaliacao["produto_id"]})
             if produto:
                 avaliacao["produto"] = produto
@@ -187,7 +184,6 @@ class ProdutoService:
         if not 0 <= avaliacao_data["nota"] <= 5:
             raise ValueError("Nota deve estar entre 0 e 5")
             
-        # Check if user already reviewed this product
         existing = self.avaliacoes_collection.find_one({
             "usuario_id": avaliacao_data["usuario_id"],
             "produto_id": avaliacao_data["produto_id"]  # No conversion needed

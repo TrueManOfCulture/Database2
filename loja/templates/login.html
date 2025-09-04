@@ -1,48 +1,77 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - TechMart</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f7f6;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh; margin: 0;
-    }
-    .container {
-      background: #fff; padding: 30px; border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; text-align: center;
-    }
-    h2 { color: #1d3557; margin-bottom: 20px; }
-    input {
-      width: 100%; padding: 12px; margin: 10px 0;
-      border: 1px solid #ddd; border-radius: 5px; font-size: 1em;
-      box-sizing: border-box; /* This is the key fix */
-    }
-    .btn {
-      width: 100%; padding: 12px; border: none;
-      background: #1d3557; color: #fff; border-radius: 5px;
-      cursor: pointer; font-size: 1.1em;
-      box-sizing: border-box; /* Also fix the button */
-    }
-    .btn:hover { background: #457b9d; }
-    .link { margin-top: 15px; font-size: 0.9em; }
-    .link a { color: #1d3557; text-decoration: none; }
-    .link a:hover { text-decoration: underline; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Login - TechMart</h2>
-    {% if form.errors %}
-      <p style="color:red;">Error: check credetials.</p>
-    {% endif %}
-    {% if messages %}
-      <div style="margin-bottom: 15px;">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - TechMart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7f6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 320px;
+        text-align: center;
+      }
+      h2 {
+        color: #1d3557;
+        margin-bottom: 20px;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1em;
+        box-sizing: border-box; /* This is the key fix */
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: #1d3557;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1em;
+        box-sizing: border-box; /* Also fix the button */
+      }
+      .btn:hover {
+        background: #457b9d;
+      }
+      .link {
+        margin-top: 15px;
+        font-size: 0.9em;
+      }
+      .link a {
+        color: #1d3557;
+        text-decoration: none;
+      }
+      .link a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Login - TechMart</h2>
+      {% if form.errors %}
+      <p style="color: red">Error: check credetials.</p>
+      {% endif %} {% if messages %}
+      <div style="margin-bottom: 15px">
         {% for message in messages %}
-          <div style="
+        <div
+          style="
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 8px;
@@ -54,21 +83,27 @@
             {% else %}
               background: #f0f0f0; color: #333; border: 1px solid #ccc;
             {% endif %}
-          ">
-            {{ message }}
-          </div>
+          "
+        >
+          {{ message }}
+        </div>
         {% endfor %}
       </div>
-    {% endif %}
-    <form method="POST">
-      {% csrf_token %}
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit" class="btn">Login</button>
-    </form>
-    <div class="link">
-      <p>Don't have an account?<a href="{% url 'register' %}"> Sign-up</a></p>
+      {% endif %}
+      <form method="POST">
+        {% csrf_token %}
+        <input type="email" name="email" placeholder="Email" required />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+        />
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <div class="link">
+        <p>Don't have an account?<a href="{% url 'register' %}"> Sign-up</a></p>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

@@ -1,69 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delete Product - TechMart</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 400px;
-      text-align: center;
-    }
-    h2 {
-      color: #e63946;
-      margin-bottom: 20px;
-    }
-    p {
-      margin-bottom: 25px;
-      font-size: 1.1em;
-    }
-    .btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      font-size: 1.1em;
-      cursor: pointer;
-      margin: 5px;
-      transition: background 0.3s ease;
-    }
-    .btn-danger {
-      background: #e63946;
-      color: #fff;
-    }
-    .btn-danger:hover {
-      background: #c1121f;
-    }
-    .btn-secondary {
-      background: #457b9d;
-      color: #fff;
-    }
-    .btn-secondary:hover {
-      background: #1d3557;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Delete Product</h2>
-    <p>Are you sure you want to delete <strong>{{ produto.nome }}</strong>?</p>
-    <form method="POST">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-danger">Yes, delete</button>
-      <a href="{% url 'produto_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delete Product - TechMart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f7f6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 400px;
+        text-align: center;
+      }
+      h2 {
+        color: #e63946;
+        margin-bottom: 20px;
+      }
+      p {
+        margin-bottom: 25px;
+        font-size: 1.1em;
+      }
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1em;
+        cursor: pointer;
+        margin: 5px;
+        transition: background 0.3s ease;
+      }
+      .btn-danger {
+        background: #e63946;
+        color: #fff;
+      }
+      .btn-danger:hover {
+        background: #c1121f;
+      }
+      .btn-secondary {
+        background: #457b9d;
+        color: #fff;
+      }
+      .btn-secondary:hover {
+        background: #1d3557;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Delete Product</h2>
+      <p>
+        Are you sure you want to delete <strong>{{ produto.nome }}</strong>?
+      </p>
+      <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, delete</button>
+        <a href="{% url 'produto_list' %}" class="btn btn-secondary">Cancel</a>
+      </form>
+    </div>
+  </body>
 </html>

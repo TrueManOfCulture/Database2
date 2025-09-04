@@ -259,4 +259,20 @@ SELECT
     f.nif,
     'fornecedor' AS tipo_entidade
 FROM usuario u
-JOIN fornecedor f ON u.id_usuario = f.id_fornecedor;
+JOIN fornecedor f ON u.id_usuario = f.id_fornecedor
+
+UNION ALL
+
+SELECT
+    u.id_usuario,
+    u.nome,
+    u.email,
+    u.tipo_usuario,
+    u.password,
+    NULL::VARCHAR(20) AS genero,
+    NULL::DATE AS data_nascimento,
+    NULL::VARCHAR(255) AS morada,
+    NULL::VARCHAR(20) AS nif,
+    'admin' AS tipo_entidade
+FROM usuario u
+WHERE u.tipo_usuario = 'admin';

@@ -15,7 +15,7 @@
       }
       body {
         font-family: Arial, sans-serif;
-        background: #f4f7f6; 
+        background: #f4f7f6;
         margin: 0;
       }
       header {
@@ -30,7 +30,7 @@
         position: sticky;
         top: 0;
         flex-shrink: 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         z-index: 100;
       }
       .header-title {
@@ -45,13 +45,13 @@
         color: #fff;
         text-decoration: none;
         padding: 10px 18px;
-        background: rgba(255,255,255,0.15);
+        background: rgba(255, 255, 255, 0.15);
         border-radius: 6px;
         transition: all 0.3s;
         font-weight: 500;
       }
       .header-actions a:hover {
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         transform: translateY(-2px);
       }
       .content {
@@ -81,7 +81,7 @@
         overflow: hidden;
       }
       .card::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -101,7 +101,7 @@
         padding-bottom: 12px;
       }
       .card h3::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 0;
         left: 30%;
@@ -153,7 +153,7 @@
         font-size: 0.9em;
         opacity: 0.9;
       }
-      
+
       @media (max-width: 768px) {
         .content {
           gap: 20px;
@@ -184,17 +184,25 @@
     <div class="content">
       <div class="card">
         <h3>Meus Produtos</h3>
-        <p>Gerir os seus produtos em stock. Adicionar, editar e remover produtos do seu catálogo.</p>
+        <p>
+          Gerir os seus produtos em stock. Adicionar, editar e remover produtos
+          do seu catálogo.
+        </p>
         <a href="{% url 'supplier_produto_list' %}">Gerir Produtos</a>
       </div>
       <div class="card">
         <h3>Pedidos</h3>
-        <p>Visualizar e gerir pedidos feitos pelos clientes para os seus produtos.</p>
+        <p>
+          Visualizar e gerir pedidos feitos pelos clientes para os seus
+          produtos.
+        </p>
         <a href="{% url 'supplier_pedidos' %}">Ver Pedidos</a>
       </div>
       <div class="card">
         <h3>Promoções</h3>
-        <p>Criar e gerir promoções para os seus produtos para aumentar as vendas.</p>
+        <p>
+          Criar e gerir promoções para os seus produtos para aumentar as vendas.
+        </p>
         <a href="{% url 'supplier_promocoes' %}">Gerir Promoções</a>
       </div>
     </div>

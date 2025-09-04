@@ -1,216 +1,273 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Pedidos - TechMart</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f7f6; margin: 0; }
-    
-    /* Header with login/logout */
-    header {
-      background: #1d3557; color: #fff; padding: 15px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    
-    .header-title {
-      font-size: 1.5em; font-weight: bold;
-    }
-    
-    .header-auth {
-      display: flex; align-items: center; gap: 15px;
-    }
-    
-    .user-info {
-      font-size: 0.9em; color: #a8dadc;
-    }
-    
-    .auth-link {
-      color: #fff; text-decoration: none; padding: 8px 16px;
-      background: #457b9d; border-radius: 5px; font-weight: bold;
-      transition: background 0.3s;
-    }
-    
-    .auth-link:hover {
-      background: #1d3557; text-decoration: none;
-    }
-    
-    .logout-link {
-      background: #e63946;
-    }
-    
-    .logout-link:hover {
-      background: #d62828;
-    }
-    
-    h2 { text-align: center; font-size: 2.2em; color: #1d3557; margin-top: 30px; }
-    
-    .container { 
-      max-width: 900px; 
-      margin: 30px auto; 
-      padding: 20px;
-      background: #fff; 
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .pedido-card {
-      background: #fff; 
-      border-radius: 8px; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 20px; 
-      margin-bottom: 20px;
-    }
-    
-    .pedido-header {
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 10px;
-    }
-    
-    .pedido-id {
-      font-size: 1.2em; 
-      font-weight: bold; 
-      color: #1d3557;
-    }
-    
-    .pedido-status {
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 0.9em;
-      font-weight: bold;
-    }
-    
-    .status-pendente {
-      background-color: #ffd166;
-      color: #7a5900;
-    }
-    
-    .status-processando {
-      background-color: #06d6a0;
-      color: #005a43;
-    }
-    
-    .status-concluido {
-      background-color: #118ab2;
-      color: white;
-    }
-    
-    .status-cancelado {
-      background-color: #ef476f;
-      color: white;
-    }
-    
-    .produtos-table {
-      width: 100%; 
-      border-collapse: collapse; 
-      margin-bottom: 15px;
-    }
-    
-    .produtos-table th, .produtos-table td {
-      padding: 10px; 
-      text-align: left; 
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .produtos-table th { 
-      background: #a8dadc; 
-      color: #1d3557; 
-    }
-    
-    .actions { 
-      text-align: right; 
-      margin-top: 15px;
-    }
-    
-    .actions a {
-      text-decoration: none; 
-      margin: 5px; 
-      padding: 8px 12px; 
-      border-radius: 5px;
-      color: white; 
-      font-weight: bold; 
-      transition: background 0.3s;
-    }
-    
-    .edit-btn {
-      background-color: #457b9d;
-    }
-    
-    .edit-btn:hover {
-      background-color: #1d3557;
-    }
-    
-    .delete-btn {
-      background-color: #e63946;
-    }
-    
-    .delete-btn:hover {
-      background-color: #d62828;
-    }
-    
-    .empty-message {
-      text-align: center; 
-      font-size: 1.2em; 
-      color: #457b9d;
-      padding: 40px 0;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Pedidos - TechMart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f7f6;
+        margin: 0;
+      }
 
-    /* Responsive design */
-    @media (max-width: 768px) {
+      /* Header with login/logout */
       header {
-        flex-direction: column; gap: 10px; text-align: center;
+        background: #1d3557;
+        color: #fff;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
-      
+
+      .header-title {
+        font-size: 1.5em;
+        font-weight: bold;
+      }
+
       .header-auth {
-        justify-content: center;
+        display: flex;
+        align-items: center;
+        gap: 15px;
       }
-      
+
+      .user-info {
+        font-size: 0.9em;
+        color: #a8dadc;
+      }
+
+      .auth-link {
+        color: #fff;
+        text-decoration: none;
+        padding: 8px 16px;
+        background: #457b9d;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+
+      .auth-link:hover {
+        background: #1d3557;
+        text-decoration: none;
+      }
+
+      .logout-link {
+        background: #e63946;
+      }
+
+      .logout-link:hover {
+        background: #d62828;
+      }
+
+      h2 {
+        text-align: center;
+        font-size: 2.2em;
+        color: #1d3557;
+        margin-top: 30px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .pedido-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
       .pedido-header {
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
       }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="header-title">TechMart - Meus Pedidos</div>
-    <div class="header-auth">
-      {% if request.session.user_id %}
+
+      .pedido-id {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #1d3557;
+      }
+
+      .pedido-status {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9em;
+        font-weight: bold;
+      }
+
+      .status-pendente {
+        background-color: #ffd166;
+        color: #7a5900;
+      }
+
+      .status-processando {
+        background-color: #06d6a0;
+        color: #005a43;
+      }
+
+      .status-concluido {
+        background-color: #118ab2;
+        color: white;
+      }
+
+      .status-cancelado {
+        background-color: #ef476f;
+        color: white;
+      }
+
+      .produtos-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+      }
+
+      .produtos-table th,
+      .produtos-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .produtos-table th {
+        background: #a8dadc;
+        color: #1d3557;
+      }
+
+      .actions {
+        text-align: right;
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .actions a {
+        text-decoration: none;
+        margin: 5px 0;
+        padding: 8px 12px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        transition: all 0.3s;
+        display: inline-block;
+      }
+
+      .confirm-btn {
+        background-color: #28a745;
+      }
+
+      .confirm-btn:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+      }
+
+      .edit-btn {
+        background-color: #457b9d;
+      }
+
+      .edit-btn:hover {
+        background-color: #1d3557;
+      }
+
+      .delete-btn {
+        background-color: #e63946;
+      }
+
+      .delete-btn:hover {
+        background-color: #d62828;
+      }
+
+      .empty-message {
+        text-align: center;
+        font-size: 1.2em;
+        color: #457b9d;
+        padding: 40px 0;
+      }
+
+      .pending-notice {
+        background: #e7f3ff;
+        color: #004085;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        border-left: 4px solid #007bff;
+        font-size: 0.9em;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        header {
+          flex-direction: column;
+          gap: 10px;
+          text-align: center;
+        }
+
+        .header-auth {
+          justify-content: center;
+        }
+
+        .pedido-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .actions {
+          justify-content: center;
+          flex-direction: column;
+        }
+
+        .actions a {
+          text-align: center;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-title">TechMart - Meus Pedidos</div>
+      <div class="header-auth">
+        {% if request.session.user_id %}
         <span class="user-info">
-          Bem-vindo, 
-          {% if request.session.tipo_usuario == 'cliente' %}
-            Cliente
-          {% elif request.session.tipo_usuario == 'fornecedor' %}
-            Fornecedor
-          {% else %}
-            Utilizador
-          {% endif %}
+          Bem-vindo, {% if request.session.tipo_usuario == 'cliente' %} Cliente
+          {% elif request.session.tipo_usuario == 'fornecedor' %} Fornecedor {%
+          else %} Utilizador {% endif %}
         </span>
         <a href="{% url 'home' %}" class="auth-link">Produtos</a>
         {% if request.session.tipo_usuario == 'cliente' %}
-          <a href="{% url 'pedido_list' %}" class="auth-link">Meus Pedidos</a>
+        <a href="{% url 'pedido_list' %}" class="auth-link">Meus Pedidos</a>
         {% elif request.session.tipo_usuario == 'fornecedor' %}
-          <a href="{% url 'fornecedor_page' %}" class="auth-link">Painel Fornecedor</a>
+        <a href="{% url 'fornecedor_page' %}" class="auth-link"
+          >Painel Fornecedor</a
+        >
         {% endif %}
         <a href="{% url 'logout' %}" class="auth-link logout-link">Logout</a>
-      {% else %}
+        {% else %}
         <a href="{% url 'login' %}" class="auth-link">Login</a>
         <a href="{% url 'register' %}" class="auth-link">Registar</a>
-      {% endif %}
-    </div>
-  </header>
+        {% endif %}
+      </div>
+    </header>
 
-  <h2>Meus Pedidos</h2>
-  
-  {% if messages %}
-      <div style="margin-bottom: 15px;">
-        {% for message in messages %}
-          <div style="
+    <h2>Meus Pedidos</h2>
+
+    {% if messages %}
+    <div style="margin-bottom: 15px; max-width: 900px; margin-left: auto; margin-right: auto;">
+      {% for message in messages %}
+      <div
+        style="
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 8px;
@@ -219,19 +276,21 @@
               background: #ffe0e0; color: #b00020; border: 1px solid #b00020;
             {% elif message.tags == 'success' %}
               background: #e0ffe5; color: #006400; border: 1px solid #006400;
+            {% elif message.tags == 'warning' %}
+              background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;
             {% else %}
               background: #f0f0f0; color: #333; border: 1px solid #ccc;
             {% endif %}
-          ">
-            {{ message }}
-          </div>
-        {% endfor %}
+          "
+      >
+        {{ message }}
       </div>
+      {% endfor %}
+    </div>
     {% endif %}
 
-  <div class="container">
-    {% if pedidos %}
-      {% for pedido in pedidos %}
+    <div class="container">
+      {% if pedidos %} {% for pedido in pedidos %}
       <div class="pedido-card">
         <div class="pedido-header">
           <div class="pedido-id">Pedido #{{ pedido.id_pedido }}</div>
@@ -239,9 +298,15 @@
             {{ pedido.status }}
           </div>
         </div>
-        
+
         <p><strong>Data:</strong> {{ pedido.data_efetuado }}</p>
-        
+
+        {% if pedido.status == 'Pendente' %}
+        <div class="pending-notice">
+          <strong>Carrinho Pendente:</strong> Este pedido ainda não foi confirmado. Clique em "Confirmar Pedido" para processar a compra e atualizar o stock.
+        </div>
+        {% endif %}
+
         <table class="produtos-table">
           <thead>
             <tr>
@@ -258,18 +323,33 @@
             {% endfor %}
           </tbody>
         </table>
-        
+
         <div class="actions">
-          <a href="{% url 'pedido_update' pedido.id_pedido %}" class="edit-btn">Editar</a>
-          <a href="{% url 'pedido_delete' pedido.id_pedido %}" class="delete-btn">Cancelar</a>
+          {% if pedido.status == 'Pendente' %}
+          <a href="{% url 'pedido_confirmar' pedido.id_pedido %}" class="confirm-btn"
+            >Confirmar Pedido</a
+          >
+          {% endif %}
+          
+          {% if pedido.status in 'Pendente,Processando' %}
+          <a href="{% url 'pedido_update' pedido.id_pedido %}" class="edit-btn"
+            >Editar</a
+          >
+          <a
+            href="{% url 'pedido_delete' pedido.id_pedido %}"
+            class="delete-btn"
+            >Cancelar</a
+          >
+          {% endif %}
         </div>
       </div>
-      {% endfor %}
-    {% else %}
+      {% endfor %} {% else %}
       <div class="empty-message">
         Nenhum pedido encontrado.
+        <br><br>
+        <a href="{% url 'home' %}" class="auth-link">Começar a Comprar</a>
       </div>
-    {% endif %}
-  </div>
-</body>
+      {% endif %}
+    </div>
+  </body>
 </html>

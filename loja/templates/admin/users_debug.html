@@ -1,0 +1,60 @@
+<!-- Debug template: templates/admin/users_debug.html -->
+{% extends "base.html" %}
+{% block title %}Debug User Management{% endblock %}
+{% block header_title %}Debug User Management{% endblock %}
+{% block content %}
+
+<h2>Debug Information</h2>
+
+<div class="card">
+  <h3>Users variable type and length:</h3>
+  <p>Type: {{ users|length }} users found</p>
+  <p>Users data: {{ users }}</p>
+</div>
+
+<div class="card">
+  <h3>Raw user data:</h3>
+  {% for user in users %}
+    <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+      <p><strong>User {{ forloop.counter }}:</strong></p>
+      <p>Full data: {{ user }}</p>
+      <p>Index 0 (ID): {{ user.0 }}</p>
+      <p>Index 1 (Name): {{ user.1 }}</p>
+      <p>Index 2 (Email): {{ user.2 }}</p>
+      <p>Index 3 (Type): {{ user.3 }}</p>
+      <p>Length: {{ user|length }}</p>
+    </div>
+  {% empty %}
+    <p>No users in loop</p>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h3>Standard table (your original):</h3>
+  <table class="user-table" style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background-color: #f0f0f0;">
+        <th style="padding: 10px; border: 1px solid #ccc;">ID</th>
+        <th style="padding: 10px; border: 1px solid #ccc;">Name</th>
+        <th style="padding: 10px; border: 1px solid #ccc;">Email</th>
+        <th style="padding: 10px; border: 1px solid #ccc;">Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ccc;">{{ user.0 }}</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">{{ user.1 }}</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">{{ user.2 }}</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">{{ user.3 }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" style="text-align: center; padding: 10px;">No users found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

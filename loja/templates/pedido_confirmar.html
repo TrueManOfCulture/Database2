@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Pedido - TechMart{% endblock %}
+{% block header_title %}Confirmar Pedido{% endblock %}
+
+{% block extra_css %}
+.confirmation-container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.confirmation-header {
+  background: #1d3557;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
+
+.confirmation-header h2 {
+  margin: 0;
+  font-size: 1.8em;
+}
+
+.pedido-info {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+}
+
+.pedido-info h3 {
+  margin-top: 0;
+  color: #1d3557;
+}
+
+.produtos-section {
+  padding: 20px;
+}
+
+.produtos-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.produtos-table th,
+.produtos-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.produtos-table th {
+  background: #f8f9fa;
+  color: #1d3557;
+  font-weight: bold;
+}
+
+.stock-ok {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.stock-insuficiente {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.total-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-top: 2px solid #1d3557;
+  text-align: right;
+}
+
+.total-valor {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #1d3557;
+  margin: 10px 0;
+}
+
+.actions {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+.btn-confirm {
+  background: #28a745;
+  color: #fff;
+}
+
+.btn-confirm:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.btn-confirm:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: #545b62;
+  color: #fff;
+  text-decoration: none;
+}
+
+.warning-message {
+  background: #fff3cd;
+  color: #856404;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+  border: 1px solid #ffeaa7;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+  border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+  .produtos-table {
+    font-size: 0.9em;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+{% endblock %}
+
+{% block content %}
+<div class="confirmation-container">
+  <div class="confirmation-header">
+    <h2>Confirmar Pedido #{{ pedido.id_pedido }}</h2>
+  </div>
+
+  <div class="pedido-info">
+    <h3>Detalhes do Pedido</h3>
+    <p><strong>Status:</strong> {{ pedido.status }}</p>
+    <p><strong>Data de Criação:</strong> {{ pedido.data_efetuado }}</p>
+  </div>
+
+  <div class="produtos-section">
+    <h3>Produtos no Pedido</h3>
+    
+    {% if not tem_stock_suficiente %}
+    <div class="error-message">
+      <strong>Atenção!</strong> Alguns produtos não têm stock suficiente. Não será possível confirmar este pedido até que o stock seja reposto ou você altere as quantidades.
+    </div>
+    {% endif %}
+
+    <table class="produtos-table">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Preço Unit.</th>
+          <th>Quantidade</th>
+          <th>Stock Disponível</th>
+          <th>Status</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for produto in produtos_detalhes %}
+        <tr>
+          <td>{{ produto.nome }}</td>
+          <td>€ {{ produto.preco_unitario|floatformat:2 }}</td>
+          <td>{{ produto.quantidade_pedida }}</td>
+          <td>{{ produto.stock_disponivel }}</td>
+          <td>
+            {% if produto.stock_suficiente %}
+              <span class="stock-ok">✓ Disponível</span>
+            {% else %}
+              <span class="stock-insuficiente">✗ Stock Insuficiente</span>
+            {% endif %}
+          </td>
+          <td>€ {{ produto.subtotal|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="total-section">
+    <div class="total-valor">
+      Total: € {{ total_valor|floatformat:2 }}
+    </div>
+  </div>
+
+  {% if tem_stock_suficiente %}
+  <div class="warning-message">
+    <strong>Confirmar Pedido:</strong> Ao confirmar, o stock dos produtos será reduzido e o pedido será marcado como "Concluído". Esta ação não pode ser desfeita.
+  </div>
+  {% endif %}
+
+  <div class="actions">
+    {% if tem_stock_suficiente %}
+    <form method="POST" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-confirm">
+        Confirmar e Processar Pedido
+      </button>
+    </form>
+    {% else %}
+    <button type="button" class="btn btn-confirm" disabled>
+      Não é Possível Confirmar (Stock Insuficiente)
+    </button>
+    {% endif %}
+    
+    <a href="{% url 'pedido_update' pedido.id_pedido %}" class="btn btn-secondary">
+      Editar Pedido
+    </a>
+    
+    <a href="{% url 'pedido_list' %}" class="btn btn-secondary">
+      Voltar aos Pedidos
+    </a>
+  </div>
+</div>
+{% endblock %}

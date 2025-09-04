@@ -1,86 +1,125 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registo - TechMart</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f7f6;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh; margin: 0;
-    }
-    .container {
-      background: #fff; padding: 30px; border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 400px;
-    }
-    h2 { color: #1d3557; margin-bottom: 20px; text-align: center; }
-    input, select {
-      width: 100%; padding: 12px; margin: 10px 0;
-      border: 1px solid #ddd; border-radius: 5px;
-    }
-    .btn {
-      width: 100%; padding: 12px; border: none;
-      background: #1d3557; color: #fff; border-radius: 5px;
-      cursor: pointer; font-size: 1.1em;
-    }
-    .btn:hover { background: #457b9d; }
-    .link { margin-top: 15px; text-align: center; }
-    .link a { color: #1d3557; text-decoration: none; }
-    .hidden { display: none; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Create your account - TechMart</h2>
-    <form method="POST">
-      {% csrf_token %}
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="password" name="password1" placeholder="Password" required>
-      <input type="email" name="email" placeholder="Email" required>
-
-      <select id="tipo_usuario" name="tipo_usuario" required onchange="toggleFields()">
-        <option value="">Select the type of account</option>
-        <option value="cliente">Client</option>
-        <option value="fornecedor">Supplier</option>
-      </select>
-
-      <!-- Extra fields for Client -->
-      <div id="cliente_fields" class="hidden">
-        <select name="genero">
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-        </select>
-        <input type="date" name="data_nascimento" placeholder="Birthdate">
-        <input type="text" name="morada" placeholder="Address">
-      </div>
-
-      <!-- Extra fields for Supplier -->
-      <div id="fornecedor_fields" class="hidden">
-        <input type="text" name="nif" placeholder="NIF">
-      </div>
-
-      <button type="submit" class="btn">Register</button>
-    </form>
-    <div class="link">
-      <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
-    </div>
-  </div>
-
-  <script>
-    function toggleFields() {
-      const tipo = document.getElementById("tipo_usuario").value;
-      document.getElementById("cliente_fields").classList.add("hidden");
-      document.getElementById("fornecedor_fields").classList.add("hidden");
-
-      if (tipo === "cliente") {
-        document.getElementById("cliente_fields").classList.remove("hidden");
-      } else if (tipo === "fornecedor") {
-        document.getElementById("fornecedor_fields").classList.remove("hidden");
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registo - TechMart</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7f6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
       }
-    }
-  </script>
-</body>
+      .container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 400px;
+      }
+      h2 {
+        color: #1d3557;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: #1d3557;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1em;
+      }
+      .btn:hover {
+        background: #457b9d;
+      }
+      .link {
+        margin-top: 15px;
+        text-align: center;
+      }
+      .link a {
+        color: #1d3557;
+        text-decoration: none;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Create your account - TechMart</h2>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username" required />
+        <input
+          type="password"
+          name="password1"
+          placeholder="Password"
+          required
+        />
+        <input type="email" name="email" placeholder="Email" required />
+
+        <select
+          id="tipo_usuario"
+          name="tipo_usuario"
+          required
+          onchange="toggleFields()"
+        >
+          <option value="">Select the type of account</option>
+          <option value="cliente">Client</option>
+          <option value="fornecedor">Supplier</option>
+        </select>
+
+        <div id="cliente_fields" class="hidden">
+          <select name="genero">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <input type="date" name="data_nascimento" placeholder="Birthdate" />
+          <input type="text" name="morada" placeholder="Address" />
+        </div>
+
+        <div id="fornecedor_fields" class="hidden">
+          <input type="text" name="nif" placeholder="NIF" />
+        </div>
+
+        <button type="submit" class="btn">Register</button>
+      </form>
+      <div class="link">
+        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+      </div>
+    </div>
+
+    <script>
+      function toggleFields() {
+        const tipo = document.getElementById("tipo_usuario").value;
+        document.getElementById("cliente_fields").classList.add("hidden");
+        document.getElementById("fornecedor_fields").classList.add("hidden");
+
+        if (tipo === "cliente") {
+          document.getElementById("cliente_fields").classList.remove("hidden");
+        } else if (tipo === "fornecedor") {
+          document
+            .getElementById("fornecedor_fields")
+            .classList.remove("hidden");
+        }
+      }
+    </script>
+  </body>
 </html>
